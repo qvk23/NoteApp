@@ -50,7 +50,7 @@ class NoteDatabase(private val context: Context) :
 
     fun updateNote(id: Int, value: ContentValues): Boolean {
         val db = writableDatabase
-        var selectionArs = arrayOf(id.toString())
+        val selectionArs = arrayOf(id.toString())
         val result = db.update(TABLE_NOTE, value, "$NOTE_ID=?", selectionArs)
         db.close()
         return result != -1
@@ -58,7 +58,7 @@ class NoteDatabase(private val context: Context) :
 
     fun deleteNote(id: Int): Boolean {
         val db = writableDatabase
-        var selectionArs = arrayOf(id.toString())
+        val selectionArs = arrayOf(id.toString())
         val result = db.delete(TABLE_NOTE, "$NOTE_ID=?", selectionArs)
         db.close()
         return result != -1
