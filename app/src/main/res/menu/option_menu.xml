@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/option_menu_title"
+        android:icon="@drawable/ic_more_vert"
+        android:title="@string/option_menu_title"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/option_item_color"
+                android:icon="@drawable/ic_color"
+                android:title="@string/option_menu_item_color"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/option_item_label"
+                android:icon="@drawable/ic_label"
+                android:title="@string/option_menu_item_label"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/option_item_sort"
+                android:icon="@drawable/ic_sort"
+                android:title="@string/option_menu_item_sort"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/option_item_view"
+                android:icon="@drawable/ic_view"
+                android:title="@string/option_menu_item_view"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/option_item_search"
+                android:icon="@drawable/ic_search"
+                android:title="@string/option_menu_item_search" />
+        </menu>
+    </item>
+
+</menu>
