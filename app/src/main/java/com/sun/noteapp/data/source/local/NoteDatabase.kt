@@ -61,7 +61,7 @@ class NoteDatabase(private val context: Context) :
         val selectionArs = arrayOf(id.toString())
         val result = db.delete(TABLE_NOTE, "$NOTE_ID=?", selectionArs)
         db.close()
-        return result != -1
+        return result != 0
     }
 
     companion object {
