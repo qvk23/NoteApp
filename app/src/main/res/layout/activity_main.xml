@@ -9,20 +9,22 @@
     tools:context=".ui.home.MainActivity"
     tools:openDrawer="start">
 
+    <!--    Home Layout-->
     <include
         layout="@layout/nav_home_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!--    Navigation Drawer Layout -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:itemTextColor="@color/color_antique_white"
-        app:headerLayout="@layout/nav_header"
         android:background="@color/color_gray"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header"
+        app:itemTextColor="@color/color_antique_white"
         app:menu="@menu/nav_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
