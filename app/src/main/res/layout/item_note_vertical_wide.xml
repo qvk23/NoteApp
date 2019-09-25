@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp_3">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textTitleNoteVerticalWide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_blue"
+            android:paddingLeft="@dimen/dp_5"
+            android:paddingRight="@dimen/dp_5"
+            android:singleLine="true"
+            android:textSize="@dimen/sp_20"
+            android:textStyle="bold" />
+
+        <RelativeLayout
+            android:id="@+id/layoutContentNoteVerticalWide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_light_blue"
+            android:minHeight="@dimen/dp_90">
+
+            <TextView
+                android:id="@+id/textContentNoteVerticalWide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_5"
+                android:maxLines="12"
+                android:minHeight="@dimen/dp_52"
+                android:textSize="@dimen/sp_15" />
+
+            <TextView
+                android:id="@+id/textRemindTimeNoteVerticalWide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textContentNoteVerticalWide"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_5"
+                android:layout_marginBottom="@dimen/dp_5"
+                android:drawableStart="@drawable/ic_timer_black_24dp"
+                android:drawablePadding="@dimen/dp_5"
+                android:gravity="center_vertical" />
+
+            <LinearLayout
+                android:id="@+id/layoutLabelNoteVerticalWide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textRemindTimeNoteVerticalWide"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_5"
+                android:layout_marginBottom="@dimen/dp_5"
+                android:orientation="horizontal" />
+
+            <ImageView
+                android:id="@+id/iconLockNoteVerticalWide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_lock_black_24dp"
+                tools:ignore="ContentDescription" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

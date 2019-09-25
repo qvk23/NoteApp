@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.sun.noteapp.data.model.Note
 
-class NoteDatabase(private val context: Context) :
+class NoteDatabase(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -31,13 +31,14 @@ class NoteDatabase(private val context: Context) :
         val cursor = db.query(
             TABLE_NOTE,
             null,
-            null,
-            null,
+            NOTE_HIDE + " = ?",
+            arrayOf("0"),
             null,
             null,
             null,
             null
         )
+
         if (cursor.moveToFirst()) {
             do {
                 notes.add(Note(cursor))
@@ -73,9 +74,11 @@ class NoteDatabase(private val context: Context) :
         const val NOTE_CONTENT = "Note_content"
         const val NOTE_LABLE = "Note_label"
         const val NOTE_COLOR = "Note_color"
-        const val NOTE_DATE = "Note_date"
+        const val NOTE_MODIFYTIME = "Note_modify"
+        const val NOTE_REMINDTIME = "Note_remind"
         const val NOTE_PASSWORD = "Note_password"
         const val NOTE_TYPE = "Note_type"
+        const val NOTE_HIDE = "Note_hide"
 
         private const val SQL_CREATE_ENTRIES =
             """create table $TABLE_NOTE ( 
@@ -85,10 +88,11 @@ class NoteDatabase(private val context: Context) :
                     $NOTE_LABLE TEXT, 
                     $NOTE_TYPE INTEGER, 
                     $NOTE_COLOR INTEGER DEFAULT 0,
-                    $NOTE_DATE TEXT,  
-                    $NOTE_PASSWORD TEXT) """
+                    $NOTE_MODIFYTIME TEXT,
+                    $NOTE_REMINDTIME TEXT,  
+                    $NOTE_PASSWORD TEXT,
+                    $NOTE_HIDE INTEGER ) """
 
         private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS $TABLE_NOTE"
     }
-
 }

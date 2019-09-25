@@ -9,9 +9,11 @@ data class Note(
     val content: String,
     val type: Int,
     val color: Int,
-    val label: String?,
-    val date: String?,
-    val password: String?
+    val label: String,
+    val modifyTime: String,
+    val remindTime: String,
+    val password: String,
+    val hide: Int
 ) {
     constructor(cursor: Cursor) : this(
         cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_ID)),
@@ -20,7 +22,13 @@ data class Note(
         cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_TYPE)),
         cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_COLOR)),
         cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_LABLE)),
-        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_DATE)),
-        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_PASSWORD))
+        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_MODIFYTIME)),
+        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_REMINDTIME)),
+        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_PASSWORD)),
+        cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_HIDE))
     )
+
+    companion object {
+        const val NONE = "none"
+    }
 }
