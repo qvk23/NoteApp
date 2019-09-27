@@ -31,4 +31,5 @@
     <color name="color_medium_slate_gray">#99454545</color>
     <color name="color_light_slate_gray">#4D454545</color>
     <color name="color_white">#FFFFFF</color>
+    <color name="color_bg_home">#EBEBEB</color>
 </resources>

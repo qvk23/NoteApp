@@ -2,7 +2,7 @@ package com.sun.noteapp.utils
 
 import com.sun.noteapp.R
 
-class ColorPicker {
+object ColorPicker {
 
     fun getMediumColor(number: Int): Int =
         when (number) {
@@ -44,8 +44,9 @@ class ColorPicker {
         }
     }
 
-    fun getColorWithName(number: Int): Pair<Int, String> =
+    fun getColorWithName(number: Int): Pair<Int?, String> =
         when (number) {
+            0 -> Pair(null, "All colors")
             1 -> Pair(R.color.color_red, "Red")
             2 -> Pair(R.color.color_orange, "Orange")
             3 -> Pair(R.color.color_yellow, "Yellow")
