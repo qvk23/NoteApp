@@ -115,7 +115,6 @@ class MainActivity : AppCompatActivity(),
             super.onBackPressed()
         }
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_menu, menu)
         return true
