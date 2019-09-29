@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarTitle"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center"
+        android:minHeight="?attr/actionBarSize">
+
+        <EditText
+            android:id="@+id/editTitleTextNote"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/dp_10"
+            android:background="@drawable/border_item_rect_red"
+            android:importantForAutofill="no"
+            android:inputType="textLongMessage"
+            android:maxWidth="@dimen/dp_200"
+            android:minWidth="@dimen/dp_200"
+            android:padding="@dimen/dp_1"
+            tools:ignore="LabelFor" />
+
+        <ImageButton
+            android:id="@+id/imageButtonHeaderColorTextNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/color_white"
+            android:minWidth="@dimen/dp_30"
+            android:minHeight="@dimen/dp_30"
+            android:src="@drawable/border_item_rect_gray"
+            tools:ignore="ContentDescription" />
+    </androidx.appcompat.widget.Toolbar>
+
+</com.google.android.material.appbar.AppBarLayout>

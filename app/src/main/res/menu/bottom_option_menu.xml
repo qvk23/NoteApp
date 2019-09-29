@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_option_more"
+        android:icon="@drawable/ic_more_vert"
+        app:showAsAction="always"
+        tools:ignore="MenuTitle" >
+        <menu>
+            <item
+                android:id="@+id/bottomMenuDelete"
+                android:icon="@drawable/ic_trash"
+                android:title="@string/option_menu_item_delete"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/bottomMenuLabel"
+                android:icon="@drawable/ic_label"
+                android:title="@string/menu_item_label"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/bottomMenuAlarm"
+                android:icon="@drawable/ic_add_alarm"
+                android:title="@string/menu_item_remind"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+</menu>

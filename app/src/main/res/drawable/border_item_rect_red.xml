@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--create border for item color's imageView-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke
         android:width="@dimen/dp_1"
-        android:color="@color/color_medium_black" />
+        android:color="@color/color_medium_red" />
 </shape>
