@@ -12,5 +12,14 @@ interface NoteDataSource {
         fun deleteNote(id: Int, callback: OnDataModifiedCallback<Boolean>)
 
         fun getAllNotes(callback: OnDataModifiedCallback<List<Note>>)
+
+        fun getNotesWithOption(
+            color: Int,
+            labels: List<String>,
+            sortType: String,
+            callback: OnDataModifiedCallback<List<Note>>
+        )
+
+        fun getAllLabels(callback: OnDataModifiedCallback<List<String>>)
     }
 }
