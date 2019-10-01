@@ -18,4 +18,11 @@ fun View.gone() {
 fun View.visible() {
     visibility = View.VISIBLE
 }
+fun getListColor(): MutableList<Pair<Int?, String>> {
+    val colors = mutableListOf<Pair<Int?, String>>()
+    for (i in 0..9) {
+        colors.add(ColorPicker.getColorWithName(i))
+    }
+    return colors
+}
 

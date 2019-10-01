@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textTitleViewDialog"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/border_bottom_blue"
+        android:gravity="center_vertical"
+        android:padding="@dimen/dp_10"
+        android:text="@string/option_menu_item_view"
+        android:textColor="@color/color_blue"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonSetViewList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_list_black_24dp"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_by_list"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textTitleViewDialog" />
+
+    <Button
+        android:id="@+id/buttonSetViewDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_view_detail_black_24dp"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_by_detail"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSetViewList" />
+
+    <Button
+        android:id="@+id/buttonSetViewGrid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_grid_black_24dp"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_by_grid"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSetViewDetail" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

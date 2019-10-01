@@ -13,4 +13,14 @@
     <string name="menu_item_remind">Remind</string>
     <string name="menu_item_label">Label</string>
     <string name="menu_item_trash">Trash</string>
+    <string name="view_sort_by_modified_time">by modified time</string>
+    <string name="view_sort_by_created_time">by created time</string>
+    <string name="view_sort_by_alphabetically">alphabetically</string>
+    <string name="view_sort_by_color">by color</string>
+    <string name="view_sort_by_reminder_time">by reminder time</string>
+    <string name="view_by_list">List</string>
+    <string name="view_by_detail">Detail</string>
+    <string name="view_by_grid">Grid</string>
+    <string name="button_add">Add</string>
+    
 </resources>

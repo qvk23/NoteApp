@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="@dimen/dp_320"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textTitleSortDialog"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/border_bottom_blue"
+        android:gravity="center_vertical"
+        android:padding="@dimen/dp_10"
+        android:text="@string/option_menu_item_sort"
+        android:textColor="@color/color_blue"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonSortByUpdateTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_alarm"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_sort_by_modified_time"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textTitleSortDialog" />
+
+    <Button
+        android:id="@+id/buttonSortByCreatedTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_add_alarm"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_sort_by_created_time"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSortByUpdateTime" />
+
+    <Button
+        android:id="@+id/buttonSortByAlphabet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_sort_by_alpha"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_sort_by_alphabetically"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSortByCreatedTime" />
+
+    <Button
+        android:id="@+id/buttonSortByColor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_alarm"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_sort_by_color"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSortByAlphabet" />
+
+    <Button
+        android:id="@+id/buttonSortByReminderTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom_gray"
+        android:drawableStart="@drawable/ic_notifications_black_24dp"
+        android:drawablePadding="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="@string/view_sort_by_reminder_time"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSortByColor" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
