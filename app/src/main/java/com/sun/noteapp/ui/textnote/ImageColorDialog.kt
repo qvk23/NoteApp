@@ -1,24 +1,28 @@
-package com.sun.noteapp.ui.home.dialog
+package com.sun.noteapp.ui.textnote
 
 import android.content.Context
 import androidx.recyclerview.widget.GridLayoutManager
 import com.sun.noteapp.ui.base.BaseDialog
-import com.sun.noteapp.ui.home.ColorAdapter
-import com.sun.noteapp.ui.home.MainActivity.Companion.colors
+import com.sun.noteapp.utils.getMediumColor
+import com.sun.noteapp.utils.gone
 import kotlinx.android.synthetic.main.dialog_color.*
 
-private const val COLUMN_NUMBER = 2
+private const val COLUMN_NUMBER = 3
 
-class ColorDialog(
+class ImageColorDialog(
     context: Context,
     layout: Int,
-    private val onUpdateViewByColorDialogCallback: OnLoadDialogCallback<Int>
+    private val onUpdateColorCallback: OnLoadDialogCallback<Int>
 ) : BaseDialog(context, layout) {
 
+    init {
+        textTitleColorDialog.gone()
+    }
+
     override fun initListener() {
-        val adapter = ColorAdapter(object : ColorAdapter.OnItemColorClick {
+        val adapter = ImageColorAdapter(object : ImageColorAdapter.OnItemColorClick {
             override fun onClick(position: Int) {
-                onUpdateViewByColorDialogCallback.onSuccess(position)
+                onUpdateColorCallback.onSuccess(position)
                 dismiss()
             }
 
@@ -27,6 +31,7 @@ class ColorDialog(
             layoutManager = GridLayoutManager(context, COLUMN_NUMBER)
             setAdapter(adapter)
         }
-        adapter.submitList(colors)
+        val mediumColors = getMediumColor()
+        adapter.submitList(mediumColors)
     }
 }

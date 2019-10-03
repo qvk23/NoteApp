@@ -13,6 +13,7 @@ android {
     defaultConfig {
         applicationId "com.sun.noteapp"
         minSdkVersion 20
+        //noinspection OldTargetApi
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

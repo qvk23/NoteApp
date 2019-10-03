@@ -45,7 +45,7 @@ class ColorAdapter(
 
         override fun onHandleItemClick(mainItem: Pair<Int?, String>) {
             super.onHandleItemClick(mainItem)
-            listener.onClick(mainItem)
+            listener.onClick(adapterPosition)
         }
 
         private fun setAppearAnimation(itemView: View) {
@@ -54,6 +54,6 @@ class ColorAdapter(
         }
     }
     interface OnItemColorClick {
-        fun onClick(itemData: Pair<Int?, String>)
+        fun onClick(position: Int)
     }
 }
