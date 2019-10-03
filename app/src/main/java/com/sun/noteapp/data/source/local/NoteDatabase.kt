@@ -31,14 +31,76 @@ class NoteDatabase(context: Context) :
         val cursor = db.query(
             TABLE_NOTE,
             null,
-            NOTE_HIDE + " = ?",
-            arrayOf("0"),
+            null,
+            null,
             null,
             null,
             null,
             null
         )
 
+        if (cursor.moveToFirst()) {
+            do {
+                notes.add(Note(cursor))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return notes
+    }
+
+    fun getAllLabelDataString(): List<String> {
+        val result = mutableListOf<String>()
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_NOTE,
+            arrayOf(NOTE_LABLE),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                result.add(cursor.getString(cursor.getColumnIndex(NOTE_LABLE)))
+            } while (cursor.moveToNext())
+        }
+        db.close()
+        cursor.close()
+        return result
+    }
+
+
+    fun getNotesWithOption(color: Int, labels: List<String>, sortType: String): List<Note> {
+        val notes = mutableListOf<Note>()
+        val db = readableDatabase
+        var selection = "$NOTE_HIDE = ? "
+        val selectionArgs = ArrayList<String>()
+        selectionArgs.add("$UNHIDED")
+
+        if (color != DEFAULT_COLOR) {
+            selection += "AND $NOTE_COLOR = ? "
+            selectionArgs.add("$color")
+        }
+
+        if (labels.isNotEmpty()) {
+            labels.forEach {
+                selection += "AND $NOTE_LABLE LIKE ? "
+                selectionArgs.add("%$it%")
+            }
+        }
+
+        val cursor = db.query(
+            TABLE_NOTE,
+            null,
+            selection,
+            selectionArgs.toTypedArray(),
+            null,
+            null,
+            sortType,
+            null
+        )
         if (cursor.moveToFirst()) {
             do {
                 notes.add(Note(cursor))
@@ -79,6 +141,15 @@ class NoteDatabase(context: Context) :
         const val NOTE_PASSWORD = "Note_password"
         const val NOTE_TYPE = "Note_type"
         const val NOTE_HIDE = "Note_hide"
+        const val ORDERBY_ALPHABETA = "$NOTE_TITLE COLLATE NOCASE ASC"
+        const val ORDERBY_COLOR = "$NOTE_COLOR ASC"
+        const val ORDERBY_CREATETIME = ""
+        const val ORDERBY_MODIFYTIME = "$NOTE_MODIFYTIME DESC"
+        const val ORDERBY_REMINDTIME = "$NOTE_REMINDTIME DESC"
+        const val TEXT_NOTE = 1
+        const val CHECKLIST_NOTE = 2
+        const val UNHIDED = 0
+        const val DEFAULT_COLOR = 0
 
         private const val SQL_CREATE_ENTRIES =
             """create table $TABLE_NOTE ( 

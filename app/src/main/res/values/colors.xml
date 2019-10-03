@@ -32,4 +32,5 @@
     <color name="color_light_slate_gray">#4D454545</color>
     <color name="color_white">#FFFFFF</color>
     <color name="color_bg_home">#EBEBEB</color>
+    <color name="color_highlight">#DEDEDE</color>
 </resources>

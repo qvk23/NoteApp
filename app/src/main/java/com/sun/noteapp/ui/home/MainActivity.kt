@@ -22,6 +22,7 @@ import com.sun.noteapp.ui.home.dialog.ColorDialog
 import com.sun.noteapp.ui.home.dialog.LabelDialog
 import com.sun.noteapp.ui.home.dialog.SortDialog
 import com.sun.noteapp.ui.home.dialog.ViewDialog
+import com.sun.noteapp.ui.search.SearchActivity
 import com.sun.noteapp.utils.getScreenWidth
 import com.sun.noteapp.utils.showToast
 import com.sun.noteapp.utils.getListColor
@@ -35,7 +36,6 @@ class MainActivity : AppCompatActivity(),
     private val local by lazy {
         LocalDataSource(NoteDatabase(this))
     }
-
     private val repository by lazy {
         NoteLocalRepository(local)
     }
@@ -57,12 +57,18 @@ class MainActivity : AppCompatActivity(),
         LinearLayoutManager.VERTICAL
     )
     private var viewType = LIST
+    private var colorNote = NoteDatabase.DEFAULT_COLOR
+    private var sortType = NoteDatabase.ORDERBY_CREATETIME
+    private var selectedLabels = mutableListOf<String>()
+    private var allLabels = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initView()
         initData()
     }
+
     private fun initView() {
         setSupportActionBar(toolbarHome)
         supportActionBar?.setTitle(R.string.nav_header_name)
@@ -78,9 +84,9 @@ class MainActivity : AppCompatActivity(),
         setViewType(viewType)
     }
 
-
     private fun initData() {
-        presenter.getAllNotes()
+        presenter.getAllNotesWithOption(colorNote, selectedLabels, sortType)
+        presenter.getAllLabels()
     }
 
     override fun showAllNotes(notes: List<Note>) {
@@ -93,6 +99,10 @@ class MainActivity : AppCompatActivity(),
         showToast(note.toString())
     }
 
+    override fun gettedLabels(labels: List<String>) {
+        allLabels.addAll(labels)
+    }
+
     override fun onBackPressed() {
         if (drawerNavigate.isDrawerOpen(GravityCompat.START)) {
             drawerNavigate.closeDrawer(GravityCompat.START)
@@ -100,6 +110,7 @@ class MainActivity : AppCompatActivity(),
             super.onBackPressed()
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_menu, menu)
         return true
@@ -114,6 +125,7 @@ class MainActivity : AppCompatActivity(),
             adapter = newAdapter
         }
     }
+
     private fun setViewType(type: Int) {
         viewType = type
         when (type) {
@@ -140,23 +152,23 @@ class MainActivity : AppCompatActivity(),
             showLabelDialog()
             true
         }
+        R.id.option_item_search -> {
+            startActivity(SearchActivity.getIntent(this))
+            true
+        }
         else -> false
     }
 
     private fun showColorDialog() {
-        ColorDialog(this, R.layout.dialog_color, object : BaseDialog.OnLoadDialogCallback<Int>{
+        ColorDialog(this, R.layout.dialog_color, object : BaseDialog.OnLoadDialogCallback<Int> {
             override fun onSuccess(parrams: Int) {
-                if (parrams == 1) {
-                    presenter.getAllNotes()
-                } else {
 
-                }
             }
         }).show()
     }
 
     private fun showViewDialog() {
-        ViewDialog(this, R.layout.dialog_view, object : BaseDialog.OnLoadDialogCallback<Int>{
+        ViewDialog(this, R.layout.dialog_view, object : BaseDialog.OnLoadDialogCallback<Int> {
             override fun onSuccess(parrams: Int) {
                 setViewType(parrams)
             }
@@ -178,7 +190,7 @@ class MainActivity : AppCompatActivity(),
         const val DETAIL = 2
         const val GRID = 3
         val colors = getListColor()
-        @JvmStatic
+
         fun getIntent(context: Context) = Intent(context, MainActivity::class.java)
     }
 }
