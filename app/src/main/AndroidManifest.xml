@@ -14,6 +14,10 @@
         <activity android:name=".ui.search.SearchActivity"
             android:parentActivityName=".ui.home.MainActivity"/>
         <activity
+            android:name=".ui.textnote.TextNoteActivity"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ui.home.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

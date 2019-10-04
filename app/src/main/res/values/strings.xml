@@ -7,6 +7,7 @@
     <string name="option_menu_item_sort">Sort</string>
     <string name="option_menu_item_view">View</string>
     <string name="option_menu_item_search">Search</string>
+    <string name="option_menu_item_delete">Delete</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="menu_item_note">Note</string>
@@ -22,5 +23,5 @@
     <string name="view_by_detail">Detail</string>
     <string name="view_by_grid">Grid</string>
     <string name="button_add">Add</string>
-    
+
 </resources>

@@ -23,6 +23,7 @@ import com.sun.noteapp.ui.home.dialog.LabelDialog
 import com.sun.noteapp.ui.home.dialog.SortDialog
 import com.sun.noteapp.ui.home.dialog.ViewDialog
 import com.sun.noteapp.ui.search.SearchActivity
+import com.sun.noteapp.ui.textnote.TextNoteActivity
 import com.sun.noteapp.utils.getScreenWidth
 import com.sun.noteapp.utils.showToast
 import com.sun.noteapp.utils.getListColor
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity(),
     private val local by lazy {
         LocalDataSource(NoteDatabase(this))
     }
+
     private val repository by lazy {
         NoteLocalRepository(local)
     }
@@ -68,7 +70,6 @@ class MainActivity : AppCompatActivity(),
         initView()
         initData()
     }
-
     private fun initView() {
         setSupportActionBar(toolbarHome)
         supportActionBar?.setTitle(R.string.nav_header_name)
@@ -82,7 +83,11 @@ class MainActivity : AppCompatActivity(),
         drawerNavigate.addDrawerListener(toggle)
         toggle.syncState()
         setViewType(viewType)
+        fabAdd.setOnClickListener {
+            startActivity(TextNoteActivity.getIntent(this))
+        }
     }
+
 
     private fun initData() {
         presenter.getAllNotesWithOption(colorNote, selectedLabels, sortType)
@@ -125,7 +130,6 @@ class MainActivity : AppCompatActivity(),
             adapter = newAdapter
         }
     }
-
     private fun setViewType(type: Int) {
         viewType = type
         when (type) {
