@@ -20,12 +20,9 @@ class ImageColorDialog(
     }
 
     override fun initListener() {
-        val adapter = ImageColorAdapter(object : ImageColorAdapter.OnItemColorClick {
-            override fun onClick(position: Int) {
-                onUpdateColorCallback.onSuccess(position)
-                dismiss()
-            }
-
+        val adapter = ImageColorAdapter(fun(position: Int) {
+            onUpdateColorCallback.onSuccess(position)
+            dismiss()
         })
         recyclerViewListColor.apply {
             layoutManager = GridLayoutManager(context, COLUMN_NUMBER)

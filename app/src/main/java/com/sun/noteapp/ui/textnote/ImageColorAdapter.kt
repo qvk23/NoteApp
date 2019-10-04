@@ -9,7 +9,7 @@ import com.sun.noteapp.ui.base.BaseViewHolder
 import kotlinx.android.synthetic.main.color_image_item.view.*
 
 class ImageColorAdapter(
-    private val listener: OnItemColorClick
+    val onItemClicked: (position: Int) -> Unit
 ) : BaseRecyclerViewAdapter<Int, ImageColorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -21,12 +21,12 @@ class ImageColorAdapter(
             parent,
             false
         )
-        return ViewHolder(view, listener)
+        return ViewHolder(view, onItemClicked)
     }
 
     class ViewHolder(
         itemView: View,
-        private val listener: OnItemColorClick
+        val onItemClicked: (position: Int) -> Unit
     ) : BaseViewHolder<Int>(itemView) {
 
         override fun onBindData(itemData: Int) {
@@ -36,11 +36,8 @@ class ImageColorAdapter(
 
         override fun onHandleItemClick(mainItem: Int) {
             super.onHandleItemClick(mainItem)
-            listener.onClick(adapterPosition + 1)
+            onItemClicked(adapterPosition + 1)
         }
     }
 
-    interface OnItemColorClick {
-        fun onClick(position: Int)
-    }
 }

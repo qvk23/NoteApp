@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
+import android.view.View
 import com.sun.noteapp.R
 import com.sun.noteapp.ui.base.BaseDialog
 import com.sun.noteapp.utils.ColorPicker
@@ -16,8 +16,9 @@ import kotlinx.android.synthetic.main.toolbar_text_note.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TextNoteActivity : AppCompatActivity() {
+class TextNoteActivity : AppCompatActivity(), View.OnClickListener {
     private val date = Calendar.getInstance()
+
     private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,23 +26,22 @@ class TextNoteActivity : AppCompatActivity() {
         initView()
     }
 
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            R.id.imageButtonHeaderColorTextNote -> showImageColorDialog()
+            R.id.buttonAlarmTextNote -> showDateTimePickerDialog()
+            R.id.imageButtonBottomSaveTextNote -> textUpdateTime.text = getCurrentTime()
+        }
+    }
+
     private fun initView() {
         setSupportActionBar(toolbarTitle)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbarBottom.inflateMenu(R.menu.bottom_option_menu)
-        recyclerTextNoteLabel.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        }
-        imageButtonHeaderColorTextNote.setOnClickListener {
-            showImageColorDialog()
-        }
-        buttonAlarmTextNote.setOnClickListener {
-            showDateTimePickerDialog()
-        }
-        imageButtonBottomSaveTextNote.setOnClickListener {
-            textUpdateTime.text = getCurrentTime()
-        }
+        imageButtonHeaderColorTextNote.setOnClickListener(this)
+        buttonAlarmTextNote.setOnClickListener(this)
+        imageButtonBottomSaveTextNote.setOnClickListener(this)
     }
 
     private fun showDateTimePickerDialog() {
@@ -76,7 +76,6 @@ class TextNoteActivity : AppCompatActivity() {
                     buttonAlarmTextNote.setBackgroundResource(mediumColor)
                     toolbarBottom.setBackgroundResource(mediumColor)
                 }
-
             }).show()
     }
 
