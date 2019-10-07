@@ -4,19 +4,21 @@
     package="com.sun.noteapp">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".ui.search.SearchActivity"
-            android:parentActivityName=".ui.home.MainActivity"/>
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:parentActivityName=".ui.home.MainActivity" />
         <activity
             android:name=".ui.textnote.TextNoteActivity"
             android:parentActivityName=".ui.home.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.home.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
