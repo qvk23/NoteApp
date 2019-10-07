@@ -23,8 +23,15 @@ fun View.visible() {
 
 fun getListColor(): MutableList<Pair<Int?, String>> {
     val colors = mutableListOf<Pair<Int?, String>>()
-    for (i in 0..9) {
-        colors.add(ColorPicker.getColorWithName(i))
+    for (index in 0..9) {
+        colors.add(ColorPicker.getColorWithName(index))
+    }
+    return colors
+}
+fun getMediumColor(): MutableList<Int> {
+    val colors = mutableListOf<Int>()
+    for (index in 1..9) {
+        colors.add(ColorPicker.getMediumColor(index))
     }
     return colors
 }

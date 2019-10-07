@@ -17,8 +17,8 @@ class ColorDialog(
 
     override fun initListener() {
         val adapter = ColorAdapter(object : ColorAdapter.OnItemColorClick {
-            override fun onClick(itemData: Pair<Int?, String>) {
-                onUpdateViewByColorDialogCallback.onSuccess(itemData.first ?: 1)
+            override fun onClick(position: Int) {
+                onUpdateViewByColorDialogCallback.onSuccess(position)
                 dismiss()
             }
 

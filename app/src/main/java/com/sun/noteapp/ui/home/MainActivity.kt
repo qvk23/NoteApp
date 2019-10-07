@@ -37,13 +37,13 @@ class MainActivity : AppCompatActivity(),
     private val local by lazy {
         LocalDataSource(NoteDatabase(this))
     }
-
     private val repository by lazy {
         NoteLocalRepository(local)
     }
     private val presenter by lazy {
         MainPresenter(this, repository)
     }
+
     private val adapterVertical = NoteVerticalAdapter(this)
     private val adapterVerticalWide = NoteVerticalWideAdapter(
         this,
@@ -53,11 +53,13 @@ class MainActivity : AppCompatActivity(),
         this,
         getScreenWidth() / 2
     )
+
     private val linearLayoutManager = LinearLayoutManager(this)
     private val staggeredGridLayoutManager = StaggeredGridLayoutManager(
         COLUMN_NUMBER,
         LinearLayoutManager.VERTICAL
     )
+
     private var viewType = LIST
     private var colorNote = NoteDatabase.DEFAULT_COLOR
     private var sortType = NoteDatabase.ORDERBY_CREATETIME
@@ -70,6 +72,7 @@ class MainActivity : AppCompatActivity(),
         initView()
         initData()
     }
+
     private fun initView() {
         setSupportActionBar(toolbarHome)
         supportActionBar?.setTitle(R.string.nav_header_name)
@@ -87,7 +90,6 @@ class MainActivity : AppCompatActivity(),
             startActivity(TextNoteActivity.getIntent(this))
         }
     }
-
 
     private fun initData() {
         presenter.getAllNotesWithOption(colorNote, selectedLabels, sortType)
@@ -130,6 +132,7 @@ class MainActivity : AppCompatActivity(),
             adapter = newAdapter
         }
     }
+
     private fun setViewType(type: Int) {
         viewType = type
         when (type) {

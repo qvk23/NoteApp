@@ -13,7 +13,7 @@ class LabelDialog(
 
     override fun initListener() {
         val adapter = ColorAdapter(object : ColorAdapter.OnItemColorClick {
-            override fun onClick(itemData: Pair<Int?, String>) {
+            override fun onClick(position: Int) {
                 dismiss()
             }
         })
