@@ -1,6 +1,5 @@
 package com.sun.noteapp.ui.trash
 
-import android.content.Context
 import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository

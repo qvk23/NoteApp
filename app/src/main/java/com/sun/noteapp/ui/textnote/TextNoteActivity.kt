@@ -9,12 +9,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
@@ -24,8 +26,8 @@ import com.sun.noteapp.ui.base.BaseDialog
 import com.sun.noteapp.utils.*
 import kotlinx.android.synthetic.main.activity_text_note.*
 import kotlinx.android.synthetic.main.toolbar_text_note.*
-import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class TextNoteActivity : AppCompatActivity(),
     View.OnClickListener,
@@ -43,7 +45,6 @@ class TextNoteActivity : AppCompatActivity(),
     private val presenter by lazy {
         TextNotePresenter(this, repository)
     }
-    private val simpleDateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
     private val adapter = LabelAdapter()
     private val date = Calendar.getInstance()
     private var note: Note? = null
@@ -51,7 +52,7 @@ class TextNoteActivity : AppCompatActivity(),
     private var remindTime = NONE
     private var id = 0
     private var status = "0"
-    private var color = 0
+    private var color = 9
     private var password = NONE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +84,18 @@ class TextNoteActivity : AppCompatActivity(),
             if (buttonAlarmTextNote.text.isNotEmpty()) showDeleteAlarmDialog()
             true
         }
+        R.id.bottomMenuUnlock -> showUnlockDialog()
         else -> false
 
+    }
+
+    private fun showUnlockDialog(): Boolean {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.message_confirm_delete)
+            .setPositiveButton(R.string.button_yes) { _, _ -> password = NONE }
+            .setNegativeButton(R.string.button_cancel) { _, _ -> }
+            .show()
+        return true
     }
 
     private fun showDeleteAlarmDialog() {
@@ -138,11 +149,10 @@ class TextNoteActivity : AppCompatActivity(),
 
     private fun initData() {
         note = intent.getParcelableExtra(INTENT_NOTE_DETAIL)
-        Log.i("abc","$note")
         note?.let {
             id = it.id
             if (it.remindTime != NONE) {
-                date.time = simpleDateFormat.parse(it.remindTime)
+                date.time = it.remindTime.formatDate()
                 buttonAlarmTextNote.text = it.remindTime
             }
             editTitleTextNote.apply {
@@ -183,8 +193,8 @@ class TextNoteActivity : AppCompatActivity(),
             this,
             R.layout.dialog_color,
             object : BaseDialog.OnLoadDialogCallback<Int> {
-                override fun onSuccess(parrams: Int) {
-                    updateView(parrams)
+                override fun onSuccess(params: Int) {
+                    updateView(params)
                 }
             }).show()
     }
@@ -210,8 +220,8 @@ class TextNoteActivity : AppCompatActivity(),
                 TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
                     date.set(Calendar.HOUR_OF_DAY, hourOfDay)
                     date.set(Calendar.MINUTE, minutes)
-                    buttonAlarmTextNote.text = simpleDateFormat.format(date.time)
-                    remindTime = simpleDateFormat.format(date.time)
+                    buttonAlarmTextNote.text = date.time.formatDate()
+                    remindTime = date.time.formatDate()
                 }, date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE), true).show()
             },
             date.get(Calendar.YEAR),
@@ -234,6 +244,12 @@ class TextNoteActivity : AppCompatActivity(),
         values.put(NoteDatabase.NOTE_REMINDTIME, remindTime)
         values.put(NoteDatabase.NOTE_PASSWORD, password)
         values.put(NoteDatabase.NOTE_HIDE, status)
+        val duration: Long =
+            (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
+        if (remindTime != NONE) {
+            WorkManager.getInstance(this).cancelAllWorkByTag(id.toString())
+            setReminder(id, editTitleTextNote.text.toString(), duration)
+        }
         if (id == 0) {
             presenter.addNote(values)
         } else {
@@ -241,13 +257,24 @@ class TextNoteActivity : AppCompatActivity(),
         }
     }
 
+    private fun setReminder(id: Int, title: String, duration: Long) {
+        val data = Data.Builder()
+            .putInt(KEY_ID, id)
+            .putString(KEY_TITLE, title)
+            .build()
+        val request = OneTimeWorkRequest.Builder(NotificationHandler::class.java)
+            .setInitialDelay(duration, TimeUnit.SECONDS)
+            .addTag(id.toString())
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(this).enqueue(request)
+
+    }
+
     companion object {
         fun getIntent(context: Context, note: Note?) =
             Intent(context, TextNoteActivity::class.java).apply {
-                note?.let {
-                    putExtra(INTENT_NOTE_DETAIL, it)
-                }
+                putExtra(INTENT_NOTE_DETAIL, note)
             }
-        const val DATE_FORMAT = "yyyy-MM-dd HH:mm"
     }
 }
