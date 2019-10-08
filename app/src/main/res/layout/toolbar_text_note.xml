@@ -2,37 +2,49 @@
 <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarTitle"
         android:layout_width="match_parent"
+        app:contentInsetStart="0dp"
         android:layout_height="?attr/actionBarSize"
         android:gravity="center"
         android:minHeight="?attr/actionBarSize">
+        <LinearLayout
+            android:layoutDirection="rtl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:layout_marginStart="@dimen/dp_16"
+                android:layout_gravity="center"
+                android:id="@+id/imageButtonHeaderColorTextNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/color_white"
+                android:minWidth="@dimen/dp_30"
+                android:minHeight="@dimen/dp_30"
+                android:src="@drawable/border_item_rect_gray"
+                tools:ignore="ContentDescription" />
+            <EditText
+                android:paddingStart="@dimen/dp_3"
+                android:paddingEnd="@dimen/dp_3"
+                android:hint="@string/title"
+                android:id="@+id/editTitleTextNote"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/dp_10"
+                android:background="@drawable/border_item_rect_red"
+                android:importantForAutofill="no"
+                android:inputType="textLongMessage"
+                android:maxWidth="@dimen/dp_200"
+                android:minWidth="@dimen/dp_200"
+                android:padding="@dimen/dp_1"
+                tools:ignore="LabelFor" />
 
-        <EditText
-            android:id="@+id/editTitleTextNote"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/dp_10"
-            android:background="@drawable/border_item_rect_red"
-            android:importantForAutofill="no"
-            android:inputType="textLongMessage"
-            android:maxWidth="@dimen/dp_200"
-            android:minWidth="@dimen/dp_200"
-            android:padding="@dimen/dp_1"
-            tools:ignore="LabelFor" />
+        </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/imageButtonHeaderColorTextNote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/color_white"
-            android:minWidth="@dimen/dp_30"
-            android:minHeight="@dimen/dp_30"
-            android:src="@drawable/border_item_rect_gray"
-            tools:ignore="ContentDescription" />
     </androidx.appcompat.widget.Toolbar>
 
 </com.google.android.material.appbar.AppBarLayout>

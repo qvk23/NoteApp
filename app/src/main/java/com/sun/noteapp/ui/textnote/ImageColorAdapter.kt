@@ -9,7 +9,7 @@ import com.sun.noteapp.ui.base.BaseViewHolder
 import kotlinx.android.synthetic.main.color_image_item.view.*
 
 class ImageColorAdapter(
-    val onItemClicked: (position: Int) -> Unit
+    private val onItemClicked: (position: Int) -> Unit
 ) : BaseRecyclerViewAdapter<Int, ImageColorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(

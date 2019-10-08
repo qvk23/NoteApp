@@ -1,5 +1,6 @@
 package com.sun.noteapp.ui.home
 
+import android.widget.Toast
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.OnDataModifiedCallback
@@ -22,7 +23,7 @@ class MainPresenter(
                 }
 
                 override fun onFailed(exception: Exception) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    view.showError(exception)
                 }
             }
         )
@@ -36,7 +37,7 @@ class MainPresenter(
             }
 
             override fun onFailed(exception: Exception) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
             }
         })
     }

@@ -54,7 +54,7 @@ class NoteDatabase(context: Context) :
         val db = readableDatabase
         val cursor = db.query(
             TABLE_NOTE,
-            arrayOf(NOTE_LABLE),
+            arrayOf(NOTE_LABEL),
             null,
             null,
             null,
@@ -63,7 +63,7 @@ class NoteDatabase(context: Context) :
         )
         if (cursor.moveToFirst()) {
             do {
-                result.add(cursor.getString(cursor.getColumnIndex(NOTE_LABLE)))
+                result.add(cursor.getString(cursor.getColumnIndex(NOTE_LABEL)))
             } while (cursor.moveToNext())
         }
         db.close()
@@ -86,7 +86,7 @@ class NoteDatabase(context: Context) :
 
         if (labels.isNotEmpty()) {
             labels.forEach {
-                selection += "AND $NOTE_LABLE LIKE ? "
+                selection += "AND $NOTE_LABEL LIKE ? "
                 selectionArgs.add("%$it%")
             }
         }
@@ -134,7 +134,7 @@ class NoteDatabase(context: Context) :
         const val NOTE_ID = "Note_id"
         const val NOTE_TITLE = "Note_title"
         const val NOTE_CONTENT = "Note_content"
-        const val NOTE_LABLE = "Note_label"
+        const val NOTE_LABEL = "Note_label"
         const val NOTE_COLOR = "Note_color"
         const val NOTE_MODIFYTIME = "Note_modify"
         const val NOTE_REMINDTIME = "Note_remind"
@@ -156,7 +156,7 @@ class NoteDatabase(context: Context) :
                     $NOTE_ID INTEGER PRIMARY KEY AUTOINCREMENT, 
                     $NOTE_TITLE TEXT, 
                     $NOTE_CONTENT TEXT, 
-                    $NOTE_LABLE TEXT, 
+                    $NOTE_LABEL TEXT, 
                     $NOTE_TYPE INTEGER, 
                     $NOTE_COLOR INTEGER DEFAULT 0,
                     $NOTE_MODIFYTIME TEXT,

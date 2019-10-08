@@ -25,26 +25,27 @@ import com.sun.noteapp.ui.home.dialog.ViewDialog
 import com.sun.noteapp.ui.search.SearchActivity
 import com.sun.noteapp.ui.textnote.TextNoteActivity
 import com.sun.noteapp.utils.getScreenWidth
-import com.sun.noteapp.utils.showToast
 import com.sun.noteapp.utils.getListColor
+import com.sun.noteapp.utils.showToast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_home_screen.*
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity(),
     MainContract.View,
     OnNoteItemClick {
-
     private val local by lazy {
         LocalDataSource(NoteDatabase(this))
     }
+
     private val repository by lazy {
         NoteLocalRepository(local)
     }
     private val presenter by lazy {
         MainPresenter(this, repository)
     }
-
     private val adapterVertical = NoteVerticalAdapter(this)
+
     private val adapterVerticalWide = NoteVerticalWideAdapter(
         this,
         getScreenWidth()
@@ -53,19 +54,18 @@ class MainActivity : AppCompatActivity(),
         this,
         getScreenWidth() / 2
     )
-
     private val linearLayoutManager = LinearLayoutManager(this)
+
     private val staggeredGridLayoutManager = StaggeredGridLayoutManager(
         COLUMN_NUMBER,
         LinearLayoutManager.VERTICAL
     )
-
     private var viewType = LIST
+
     private var colorNote = NoteDatabase.DEFAULT_COLOR
     private var sortType = NoteDatabase.ORDERBY_CREATETIME
     private var selectedLabels = mutableListOf<String>()
     private var allLabels = mutableListOf<String>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -85,13 +85,17 @@ class MainActivity : AppCompatActivity(),
         )
         drawerNavigate.addDrawerListener(toggle)
         toggle.syncState()
-        setViewType(viewType)
         fabAdd.setOnClickListener {
-            startActivity(TextNoteActivity.getIntent(this))
+            startActivity(TextNoteActivity.getIntent(this, null))
         }
     }
 
     private fun initData() {
+        setViewType(viewType)
+    }
+
+    override fun onResume() {
+        super.onResume()
         presenter.getAllNotesWithOption(colorNote, selectedLabels, sortType)
         presenter.getAllLabels()
     }
@@ -102,8 +106,12 @@ class MainActivity : AppCompatActivity(),
         adapterStaggeredGrid.updateData(notes)
     }
 
+    override fun showError(exception: Exception) {
+        showToast(exception.toString())
+    }
+
     override fun showNoteDetail(position: Int, note: Note) {
-        showToast(note.toString())
+        startActivity(TextNoteActivity.getIntent(this, note))
     }
 
     override fun gettedLabels(labels: List<String>) {
@@ -197,7 +205,6 @@ class MainActivity : AppCompatActivity(),
         const val DETAIL = 2
         const val GRID = 3
         val colors = getListColor()
-
         fun getIntent(context: Context) = Intent(context, MainActivity::class.java)
     }
 }
