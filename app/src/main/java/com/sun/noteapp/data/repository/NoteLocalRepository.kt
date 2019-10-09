@@ -40,4 +40,16 @@ class NoteLocalRepository(private val dataSource: LocalDataSource) : NoteDataSou
     override fun getAllLabels(callback: OnDataModifiedCallback<List<String>>) {
         dataSource.getAllLabels(callback)
     }
+
+    override fun getAllHidedNotes(sortType: String, callback: OnDataModifiedCallback<List<Note>>) {
+        dataSource.getAllHidedNotes(sortType, callback)
+    }
+
+    override fun deleteNotes(noteIds: List<Int>, callback: OnDataModifiedCallback<List<Boolean>>) {
+        dataSource.deleteNotes(noteIds, callback)
+    }
+
+    override fun restoreNotes(noteIds: List<Int>, callback: OnDataModifiedCallback<List<Boolean>>) {
+        dataSource.restoreNotes(noteIds, callback)
+    }
 }

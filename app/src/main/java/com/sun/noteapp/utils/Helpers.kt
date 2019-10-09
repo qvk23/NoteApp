@@ -28,6 +28,7 @@ fun getListColor(): MutableList<Pair<Int?, String>> {
     }
     return colors
 }
+
 fun getMediumColor(): MutableList<Int> {
     val colors = mutableListOf<Int>()
     for (index in 1..9) {
@@ -36,7 +37,11 @@ fun getMediumColor(): MutableList<Int> {
     return colors
 }
 
-fun getCurrentTime() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+fun getCurrentTime(): String =
+    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+
+fun getCurrentDate(): String =
+    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
 fun String.allIndexOf(word: String): List<Int> {
     val results = mutableListOf<Int>()
@@ -55,9 +60,12 @@ fun String.allIndexOf(word: String): List<Int> {
 fun getLabelsFromLabelDataString(labelDataStrings: List<String>): List<String> {
     val results = mutableListOf<String>()
     labelDataStrings.forEach {
-        val labels = it.split("_")
+        val labels = it.split("$UNDER_STROKE")
         results.addAll(labels)
     }
-    Collections.sort(results)
-    return results.distinct()
+    results.apply {
+        sort()
+        distinct()
+    }
+    return results
 }

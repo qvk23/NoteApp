@@ -21,5 +21,17 @@ interface NoteDataSource {
         )
 
         fun getAllLabels(callback: OnDataModifiedCallback<List<String>>)
+
+        fun getAllHidedNotes(sortType: String, callback: OnDataModifiedCallback<List<Note>>)
+
+        fun deleteNotes(
+            noteIds: List<Int>,
+            callback: OnDataModifiedCallback<List<Boolean>>
+        )
+
+        fun restoreNotes(
+            noteIds: List<Int>,
+            callback: OnDataModifiedCallback<List<Boolean>>
+        )
     }
 }

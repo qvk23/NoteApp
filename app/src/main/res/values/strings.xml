@@ -35,5 +35,17 @@
     <string name="button_cancel">Cancel</string>
     <string name="message_alarm_off">Delete Reminder?</string>
     <string name="message_confirm_delete">Delete?</string>
+    <string name="activity_trash">Trash Can</string>
+    <string name="answer_no">no</string>
+    <string name="answer_yes">yes</string>
+    <string name="question_detele">Do you want to delete Note?</string>
+    <string name="question_restore">Do you want to store Note?</string>
+    <string name="message_delete_successful">Delete successful</string>
+    <string name="message_delete_failure">Delete failure</string>
+    <string name="message_restore_successful">Restore successful</string>
+    <string name="message_restore_failure">Restore failure</string>
+    <string name="option_menu_restore">Restore</string>
+    <string name="option_menu_select_all">Select All</string>
+
 
 </resources>
