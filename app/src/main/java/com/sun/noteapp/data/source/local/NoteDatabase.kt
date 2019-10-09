@@ -49,6 +49,30 @@ class NoteDatabase(context: Context) :
         return notes
     }
 
+    fun getAllHidedNote(sortType: String): List<Note> {
+        val notes = mutableListOf<Note>()
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_NOTE,
+            null,
+            "NOT $NOTE_HIDE = ?",
+            arrayOf("$UNHIDE"),
+            null,
+            null,
+            sortType,
+            null
+        )
+
+        if (cursor.moveToFirst()) {
+            do {
+                notes.add(Note(cursor))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return notes
+    }
+
     fun getAllLabelDataString(): List<String> {
         val result = mutableListOf<String>()
         val db = readableDatabase
@@ -71,13 +95,12 @@ class NoteDatabase(context: Context) :
         return result
     }
 
-
     fun getNotesWithOption(color: Int, labels: List<String>, sortType: String): List<Note> {
         val notes = mutableListOf<Note>()
         val db = readableDatabase
         var selection = "$NOTE_HIDE = ? "
         val selectionArgs = ArrayList<String>()
-        selectionArgs.add("$UNHIDED")
+        selectionArgs.add("$UNHIDE")
 
         if (color != DEFAULT_COLOR) {
             selection += "AND $NOTE_COLOR = ? "
@@ -127,6 +150,19 @@ class NoteDatabase(context: Context) :
         return result != 0
     }
 
+    fun deleteNotes(noteIds: List<Int>): List<Boolean> =
+        noteIds.map { deleteNote(it) }
+
+    fun restoreNote(id: Int): Boolean {
+        val value = ContentValues().apply {
+            put(NOTE_HIDE, UNHIDE)
+        }
+        return updateNote(id, value)
+    }
+
+    fun restoreNotes(noteIds: List<Int>): List<Boolean> =
+        noteIds.map { restoreNote(it) }
+
     companion object {
         const val DATABASE_VERSION = 1
         const val DATABASE_NAME = "Note.db"
@@ -148,7 +184,8 @@ class NoteDatabase(context: Context) :
         const val ORDERBY_REMINDTIME = "$NOTE_REMINDTIME DESC"
         const val TEXT_NOTE = 1
         const val CHECKLIST_NOTE = 2
-        const val UNHIDED = 0
+        const val UNHIDE = 0
+        const val HIDE = 1
         const val DEFAULT_COLOR = 0
 
         private const val SQL_CREATE_ENTRIES =
@@ -162,7 +199,7 @@ class NoteDatabase(context: Context) :
                     $NOTE_MODIFYTIME TEXT,
                     $NOTE_REMINDTIME TEXT,  
                     $NOTE_PASSWORD TEXT,
-                    $NOTE_HIDE INTEGER ) """
+                    $NOTE_HIDE TEXT ) """
 
         private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS $TABLE_NOTE"
     }

@@ -50,7 +50,7 @@ class TextNoteActivity : AppCompatActivity(),
     private var listLabel = listOf<String>()
     private var remindTime = NONE
     private var id = 0
-    private var status = 0
+    private var status = "0"
     private var color = 0
     private var password = NONE
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,7 +129,7 @@ class TextNoteActivity : AppCompatActivity(),
             .setTitle(R.string.message_confirm_delete)
             .setMessage(R.string.message_delete)
             .setPositiveButton(R.string.button_yes) { _, _ ->
-                status = DELETED_NOTE
+                status = getCurrentDate()
                 saveNote()
             }
             .setNegativeButton(R.string.button_no) { _, _ -> }
@@ -244,7 +244,7 @@ class TextNoteActivity : AppCompatActivity(),
     companion object {
         fun getIntent(context: Context, note: Note?) =
             Intent(context, TextNoteActivity::class.java).apply {
-                note.let {
+                note?.let {
                     putExtra(INTENT_NOTE_DETAIL, it)
                 }
             }

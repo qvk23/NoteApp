@@ -195,7 +195,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showSortDialog() {
-        SortDialog(this, R.layout.dialog_sort).show()
+        SortDialog(this, R.layout.dialog_sort, object : BaseDialog.OnLoadDialogCallback<String> {
+            override fun onSuccess(parrams: String) {
+                sortType = parrams
+                presenter.getAllNotesWithOption(colorNote, selectedLabels, sortType)
+            }
+        }).show()
     }
 
     companion object {

@@ -16,7 +16,7 @@ data class Note(
     val modifyTime: String,
     val remindTime: String,
     val password: String,
-    val hide: Int
+    val hide: String
 ) : Parcelable {
     constructor(cursor: Cursor) : this(
         cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_ID)),
@@ -28,7 +28,7 @@ data class Note(
         cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_MODIFYTIME)),
         cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_REMINDTIME)),
         cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_PASSWORD)),
-        cursor.getInt(cursor.getColumnIndex(NoteDatabase.NOTE_HIDE))
+        cursor.getString(cursor.getColumnIndex(NoteDatabase.NOTE_HIDE))
     )
 
     companion object {
