@@ -33,7 +33,7 @@ object ConvertString {
 
     fun showActionCheckListByDataString(str: String): String {
         var result = ""
-        val arrays = str.split("$UNDER_STROKE")
+        val arrays = str.split("_")
         arrays.forEach {
             result += "\n+ ${it.substring(1)}"
         }
