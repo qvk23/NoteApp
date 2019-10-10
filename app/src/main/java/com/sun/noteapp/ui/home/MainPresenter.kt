@@ -1,6 +1,5 @@
 package com.sun.noteapp.ui.home
 
-import android.widget.Toast
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.OnDataModifiedCallback

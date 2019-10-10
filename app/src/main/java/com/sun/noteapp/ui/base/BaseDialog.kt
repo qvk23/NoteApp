@@ -28,6 +28,6 @@ abstract class BaseDialog(
 
     abstract fun initListener()
     interface OnLoadDialogCallback<T> {
-        fun onSuccess(parrams: T)
+        fun onSuccess(params: T)
     }
 }

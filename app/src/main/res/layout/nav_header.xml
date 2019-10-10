@@ -8,7 +8,6 @@
     android:weightSum="2">
 
     <TextView
-        android:id="@+id/textViewAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -20,7 +19,6 @@
         android:textStyle="bold" />
 
     <ImageView
-        android:id="@+id/imageViewAppIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

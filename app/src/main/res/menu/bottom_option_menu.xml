@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <item
-        android:id="@+id/bottom_option_more"
         android:icon="@drawable/ic_more_vert"
         app:showAsAction="always"
         tools:ignore="MenuTitle">
@@ -14,7 +13,6 @@
                 android:title="@string/option_menu_item_delete"
                 app:showAsAction="ifRoom" />
             <item
-                android:id="@+id/bottomMenuLabel"
                 android:icon="@drawable/ic_label"
                 android:title="@string/menu_item_label"
                 app:showAsAction="ifRoom" />
@@ -27,6 +25,11 @@
                 android:id="@+id/bottomMenuDeleteRemind"
                 android:icon="@drawable/ic_alarm_off_black_24dp"
                 android:title="@string/option_menu_cancel_remind"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/bottomMenuUnlock"
+                android:icon="@drawable/ic_lock_open_black_24dp"
+                android:title="@string/option_menu_item_unlock"
                 app:showAsAction="ifRoom" />
         </menu>
     </item>

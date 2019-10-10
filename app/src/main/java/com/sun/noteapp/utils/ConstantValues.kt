@@ -12,3 +12,7 @@ const val DELETED_NOTE = 1
 const val UNDELETED_NOTE = 0
 const val INTENT_NOTE_DETAIL = "note"
 const val UNDER_STROKE = '_'
+const val SECOND_TO_MINUTES = 60
+const val MILLISECOND_TO_SECONDS = 1000
+const val KEY_TITLE = "title"
+const val KEY_ID = "id"

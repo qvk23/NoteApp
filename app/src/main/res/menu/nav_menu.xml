@@ -4,19 +4,16 @@
     tools:showIn="navigation_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_item_list_note"
             android:icon="@drawable/ic_note"
             android:title="@string/menu_item_note" />
         <item
-            android:id="@+id/nav_item_alarm"
             android:icon="@drawable/ic_alarm"
             android:title="@string/menu_item_remind" />
         <item
-            android:id="@+id/nav_item_label"
             android:icon="@drawable/ic_add"
             android:title="@string/menu_item_label" />
         <item
-            android:id="@+id/nav_item_trash"
+            android:id="@+id/navItemTrash"
             android:icon="@drawable/ic_trash"
             android:title="@string/menu_item_trash" />
     </group>
