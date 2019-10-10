@@ -8,6 +8,7 @@ import android.text.InputType
 import android.text.method.PasswordTransformationMethod
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.navigation.NavigationView
 import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.Note.Companion.NONE
+import com.sun.noteapp.data.model.NoteOption
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.local.LocalDataSource
 import com.sun.noteapp.data.source.local.NoteDatabase
@@ -41,7 +44,7 @@ import java.lang.Exception
 class MainActivity : AppCompatActivity(),
     MainContract.View,
     NavigationView.OnNavigationItemSelectedListener,
-    OnNoteItemClick {
+    OnNoteItemClick, View.OnClickListener {
     private val local by lazy {
         LocalDataSource(NoteDatabase(this))
     }
@@ -49,27 +52,34 @@ class MainActivity : AppCompatActivity(),
     private val repository by lazy {
         NoteLocalRepository(local)
     }
+
     private val presenter by lazy {
         MainPresenter(this, repository)
     }
     private val adapterVertical = NoteVerticalAdapter(this)
-
     private val adapterVerticalWide = NoteVerticalWideAdapter(
         this,
         getScreenWidth()
     )
+
     private val adapterStaggeredGrid = NoteVerticalWideAdapter(
         this,
         getScreenWidth() / 2
     )
     private val linearLayoutManager = LinearLayoutManager(this)
-
     private val staggeredGridLayoutManager = StaggeredGridLayoutManager(
         COLUMN_NUMBER,
         LinearLayoutManager.VERTICAL
     )
+
     private var selectedLabels = mutableListOf<String>()
     private var allLabels = mutableListOf<String>()
+    private var option = NoteOption(
+        NoteDatabase.DEFAULT_COLOR,
+        selectedLabels,
+        NoteDatabase.ORDERBY_CREATETIME,
+        false
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -90,12 +100,23 @@ class MainActivity : AppCompatActivity(),
         navigationView.setNavigationItemSelectedListener(this)
         drawerNavigate.addDrawerListener(toggle)
         toggle.syncState()
-        fabAdd.setOnClickListener {
-            CreateNoteDialog(this, object : BaseDialog.OnLoadDialogCallback<Int> {
-                override fun onSuccess(params: Int) {
-                    openNoteScreen(params, null)
-                }
-            }).show()
+        fabAdd.setOnClickListener(this)
+    }
+
+    override fun onClick(item: View?) {
+        when (item?.id) {
+            R.id.fabAdd -> {
+                CreateNoteDialog(this, object : BaseDialog.OnLoadDialogCallback<Int> {
+                    override fun onSuccess(params: Int) {
+                        val intent = if (params == TEXT_NOTE) {
+                            TextNoteActivity.getIntent(this@MainActivity, Note.INVALID_ID)
+                        } else {
+                            ToDoNoteActivity.getIntent(this@MainActivity, Note.INVALID_ID)
+                        }
+                        startActivity(intent)
+                    }
+                }).show()
+            }
         }
     }
 
@@ -104,21 +125,28 @@ class MainActivity : AppCompatActivity(),
         setViewType(SharePreferencesHelper.type)
     }
 
-    private fun openNoteScreen(noteType: Int, note: Note?) {
+    private fun openNoteScreen(noteType: Int, id: Int) {
         if (noteType == TEXT_NOTE) {
-            startActivity(TextNoteActivity.getIntent(this@MainActivity, note))
+            startActivity(TextNoteActivity.getIntent(this@MainActivity, id))
         } else {
-            startActivity(ToDoNoteActivity.getIntent(this@MainActivity, note))
+            startActivity(ToDoNoteActivity.getIntent(this@MainActivity, id))
         }
+    }
+
+    override fun noteCount(count: Int) {
+        SharePreferencesHelper.count = count
     }
 
     override fun onResume() {
         super.onResume()
-        presenter.getAllNotesWithOption(
+        option = NoteOption(
             SharePreferencesHelper.color,
             selectedLabels,
-            SharePreferencesHelper.sortType
+            SharePreferencesHelper.sortType,
+            SharePreferencesHelper.isRemind
         )
+        presenter.getNoteCount()
+        presenter.getAllNotesWithOption(option)
         presenter.getAllLabels()
     }
 
@@ -133,6 +161,18 @@ class MainActivity : AppCompatActivity(),
             startActivity(TrashActivity.getIntent(this))
             true
         }
+        R.id.navAllNote -> {
+            presenter.getAllNote()
+            drawerNavigate.closeDrawer(GravityCompat.START)
+            true
+        }
+        R.id.navRemindNote -> {
+            SharePreferencesHelper.isRemind = !SharePreferencesHelper.isRemind
+            option.isOnlyRemind = SharePreferencesHelper.isRemind
+            presenter.getAllNotesWithOption(option)
+            drawerNavigate.closeDrawer(GravityCompat.START)
+            true
+        }
         else -> false
     }
 
@@ -142,16 +182,9 @@ class MainActivity : AppCompatActivity(),
 
     override fun showNoteDetail(position: Int, note: Note) {
         if (note.password == NONE) {
-            openNoteScreen(note.type, note)
+            openNoteScreen(note.type, note.id)
         } else {
-            val input = EditText(this).apply {
-                layoutParams = ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
-                    ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                )
-                inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-                transformationMethod = PasswordTransformationMethod.getInstance()
-            }
+            val input = getInput()
             val dialog = AlertDialog.Builder(this)
                 .setMessage(R.string.message_input_password)
                 .setView(input)
@@ -162,7 +195,12 @@ class MainActivity : AppCompatActivity(),
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener {
                         if (input.text.toString() == note.password) {
-                            openNoteScreen(note.type, note)
+                            startActivity(
+                                TextNoteActivity.getIntent(
+                                    this,
+                                    note.id
+                                )
+                            )
                             dialog.dismiss()
                         } else {
                             showToast(resources.getString(R.string.message_wrong))
@@ -172,6 +210,14 @@ class MainActivity : AppCompatActivity(),
             dialog.show()
         }
 
+    }
+    private fun getInput() = EditText(this).apply {
+        layoutParams = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
+            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+        )
+        inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+        transformationMethod = PasswordTransformationMethod.getInstance()
     }
 
     override fun gettedLabels(labels: List<String>) {
@@ -237,11 +283,8 @@ class MainActivity : AppCompatActivity(),
         ColorDialog(this, R.layout.dialog_color, object : BaseDialog.OnLoadDialogCallback<Int> {
             override fun onSuccess(params: Int) {
                 SharePreferencesHelper.color = params
-                presenter.getAllNotesWithOption(
-                    params,
-                    selectedLabels,
-                    SharePreferencesHelper.sortType
-                )
+                option.color = params
+                presenter.getAllNotesWithOption(option)
             }
         }).show()
     }
@@ -263,11 +306,8 @@ class MainActivity : AppCompatActivity(),
         SortDialog(this, R.layout.dialog_sort, object : BaseDialog.OnLoadDialogCallback<String> {
             override fun onSuccess(params: String) {
                 SharePreferencesHelper.sortType = params
-                presenter.getAllNotesWithOption(
-                    SharePreferencesHelper.color,
-                    selectedLabels,
-                    params
-                )
+                option.sortType = params
+                presenter.getAllNotesWithOption(option)
             }
         }).show()
     }

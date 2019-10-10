@@ -5,6 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.NoteOption
+import com.sun.noteapp.utils.TYPE_TEXT_NOTE
 
 class NoteDatabase(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -18,7 +20,7 @@ class NoteDatabase(context: Context) :
         onCreate(db)
     }
 
-    fun createValue(note : Note) = ContentValues().apply {
+    fun createValue(note: Note) = ContentValues().apply {
         put(NOTE_TITLE, note.title)
         put(NOTE_CONTENT, note.content)
         put(NOTE_TYPE, note.type)
@@ -108,23 +110,28 @@ class NoteDatabase(context: Context) :
         return result
     }
 
-    fun getNotesWithOption(color: Int, labels: List<String>, sortType: String): List<Note> {
+    fun getNotesWithOption(option: NoteOption): List<Note> {
         val notes = mutableListOf<Note>()
         val db = readableDatabase
         var selection = "$NOTE_HIDE = ? "
         val selectionArgs = ArrayList<String>()
         selectionArgs.add(UNHIDE)
 
-        if (color != DEFAULT_COLOR) {
+        if (option.color != DEFAULT_COLOR) {
             selection += "AND $NOTE_COLOR = ? "
-            selectionArgs.add("$color")
+            selectionArgs.add("${option.color}")
         }
 
-        if (labels.isNotEmpty()) {
-            labels.forEach {
+        if (option.labels.isNotEmpty()) {
+            option.labels.forEach {
                 selection += "AND $NOTE_LABEL LIKE ? "
                 selectionArgs.add("%$it%")
             }
+        }
+
+        if (option.isOnlyRemind) {
+            selection += "AND NOT $NOTE_REMINDTIME = ?"
+            selectionArgs.add(Note.NONE)
         }
 
         val cursor = db.query(
@@ -134,7 +141,7 @@ class NoteDatabase(context: Context) :
             selectionArgs.toTypedArray(),
             null,
             null,
-            sortType,
+            option.sortType,
             null
         )
         if (cursor.moveToFirst()) {
@@ -180,6 +187,44 @@ class NoteDatabase(context: Context) :
 
     fun restoreNotes(noteIds: List<Int>): List<Boolean> =
         noteIds.map { restoreNote(it) }
+
+    fun getNoteById(id: Int): Note {
+        var note = Note(id, Note.NONE, Note.NONE, TYPE_TEXT_NOTE, DEFAULT_COLOR, Note.NONE, Note.NONE, Note.NONE, Note.NONE, UNHIDE)
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_NOTE,
+            null,
+            "$NOTE_ID = ?",
+            arrayOf("$id"),
+            null,
+            null,
+            null,
+            null
+        )
+        if (cursor != null && cursor.moveToFirst())
+            note = Note(cursor)
+        db.close()
+        return note!!
+    }
+
+    fun getNoteCount(): Int {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_NOTE,
+            arrayOf(NOTE_ID),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        cursor.moveToLast()
+        val result = cursor.getInt(cursor.getColumnIndex(NOTE_ID))
+        cursor.close()
+        db.close()
+        return result
+    }
 
     companion object {
         const val DATABASE_VERSION = 1

@@ -1,6 +1,7 @@
 package com.sun.noteapp.data.source
 
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.NoteOption
 
 interface NoteDataSource {
     interface Local {
@@ -12,12 +13,7 @@ interface NoteDataSource {
 
         fun getAllNotes(callback: OnDataModifiedCallback<List<Note>>)
 
-        fun getNotesWithOption(
-            color: Int,
-            labels: List<String>,
-            sortType: String,
-            callback: OnDataModifiedCallback<List<Note>>
-        )
+        fun getNotesWithOption(option: NoteOption, callback: OnDataModifiedCallback<List<Note>>)
 
         fun getAllLabels(callback: OnDataModifiedCallback<List<String>>)
 
@@ -32,5 +28,7 @@ interface NoteDataSource {
             noteIds: List<Int>,
             callback: OnDataModifiedCallback<List<Boolean>>
         )
+        fun getNoteById(id: Int, callback: OnDataModifiedCallback<Note>)
+        fun getNoteCount(callback: OnDataModifiedCallback<Int>)
     }
 }

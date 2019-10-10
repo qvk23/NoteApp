@@ -1,6 +1,7 @@
 package com.sun.noteapp.data.repository
 
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.NoteOption
 import com.sun.noteapp.data.source.NoteDataSource
 import com.sun.noteapp.data.source.OnDataModifiedCallback
 import com.sun.noteapp.data.source.local.LocalDataSource
@@ -28,12 +29,10 @@ class NoteLocalRepository(private val dataSource: LocalDataSource) : NoteDataSou
     }
 
     override fun getNotesWithOption(
-        color: Int,
-        labels: List<String>,
-        sortType: String,
+        option: NoteOption,
         callback: OnDataModifiedCallback<List<Note>>
     ) {
-        dataSource.getNotesWithOption(color, labels, sortType, callback)
+        dataSource.getNotesWithOption(option, callback)
     }
 
     override fun getAllLabels(callback: OnDataModifiedCallback<List<String>>) {
@@ -50,5 +49,13 @@ class NoteLocalRepository(private val dataSource: LocalDataSource) : NoteDataSou
 
     override fun restoreNotes(noteIds: List<Int>, callback: OnDataModifiedCallback<List<Boolean>>) {
         dataSource.restoreNotes(noteIds, callback)
+    }
+
+    override fun getNoteById(id: Int, callback: OnDataModifiedCallback<Note>) {
+        dataSource.getNoteById(id, callback)
+    }
+
+    override fun getNoteCount(callback: OnDataModifiedCallback<Int>) {
+        dataSource.getNoteCount(callback)
     }
 }
