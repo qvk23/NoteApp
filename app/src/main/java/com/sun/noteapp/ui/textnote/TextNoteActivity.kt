@@ -86,7 +86,6 @@ class TextNoteActivity : AppCompatActivity(),
         }
         R.id.bottomMenuUnlock -> showUnlockDialog()
         else -> false
-
     }
 
     private fun showUnlockDialog(): Boolean {
@@ -276,5 +275,6 @@ class TextNoteActivity : AppCompatActivity(),
             Intent(context, TextNoteActivity::class.java).apply {
                 putExtra(INTENT_NOTE_DETAIL, note)
             }
+        const val DATE_FORMAT = "yyyy-MM-dd HH:mm"
     }
 }

@@ -56,7 +56,7 @@ class NoteDatabase(context: Context) :
             TABLE_NOTE,
             null,
             "NOT $NOTE_HIDE = ?",
-            arrayOf("$UNHIDE"),
+            arrayOf(UNHIDE),
             null,
             null,
             sortType,
@@ -100,7 +100,7 @@ class NoteDatabase(context: Context) :
         val db = readableDatabase
         var selection = "$NOTE_HIDE = ? "
         val selectionArgs = ArrayList<String>()
-        selectionArgs.add("$UNHIDE")
+        selectionArgs.add(UNHIDE)
 
         if (color != DEFAULT_COLOR) {
             selection += "AND $NOTE_COLOR = ? "
@@ -184,8 +184,7 @@ class NoteDatabase(context: Context) :
         const val ORDERBY_REMINDTIME = "$NOTE_REMINDTIME DESC"
         const val TEXT_NOTE = 1
         const val CHECKLIST_NOTE = 2
-        const val UNHIDE = 0
-        const val HIDE = 1
+        const val UNHIDE = "0"
         const val DEFAULT_COLOR = 0
 
         private const val SQL_CREATE_ENTRIES =
