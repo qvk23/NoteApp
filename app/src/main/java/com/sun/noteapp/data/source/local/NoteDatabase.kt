@@ -18,7 +18,20 @@ class NoteDatabase(context: Context) :
         onCreate(db)
     }
 
-    fun addNote(value: ContentValues): Boolean {
+    fun createValue(note : Note) = ContentValues().apply {
+        put(NOTE_TITLE, note.title)
+        put(NOTE_CONTENT, note.content)
+        put(NOTE_TYPE, note.type)
+        put(NOTE_LABEL, note.label)
+        put(NOTE_COLOR, note.color)
+        put(NOTE_MODIFYTIME, note.modifyTime)
+        put(NOTE_REMINDTIME, note.remindTime)
+        put(NOTE_PASSWORD, note.password)
+        put(NOTE_HIDE, note.hide)
+    }
+
+    fun addNote(note: Note): Boolean {
+        val value = createValue(note)
         val db = writableDatabase
         val result = db.insert(TABLE_NOTE, "", value)
         db.close()
@@ -134,8 +147,9 @@ class NoteDatabase(context: Context) :
         return notes
     }
 
-    fun updateNote(id: Int, value: ContentValues): Boolean {
+    fun updateNote(id: Int, note: Note): Boolean {
         val db = writableDatabase
+        val value = createValue(note)
         val selectionArs = arrayOf(id.toString())
         val result = db.update(TABLE_NOTE, value, "$NOTE_ID=?", selectionArs)
         db.close()
@@ -154,10 +168,14 @@ class NoteDatabase(context: Context) :
         noteIds.map { deleteNote(it) }
 
     fun restoreNote(id: Int): Boolean {
+        val db = writableDatabase
+        val selectionArs = arrayOf(id.toString())
         val value = ContentValues().apply {
             put(NOTE_HIDE, UNHIDE)
         }
-        return updateNote(id, value)
+        val result = db.update(TABLE_NOTE, value, "$NOTE_ID=?", selectionArs)
+        db.close()
+        return result != -1
     }
 
     fun restoreNotes(noteIds: List<Int>): List<Boolean> =

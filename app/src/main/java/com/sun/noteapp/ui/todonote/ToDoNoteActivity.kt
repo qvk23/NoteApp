@@ -13,31 +13,51 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.ToDo
+import com.sun.noteapp.data.repository.NoteLocalRepository
+import com.sun.noteapp.data.source.local.LocalDataSource
 import com.sun.noteapp.data.source.local.NoteDatabase
 import com.sun.noteapp.ui.base.BaseDialog
 import com.sun.noteapp.ui.textnote.ImageColorDialog
 import com.sun.noteapp.ui.textnote.LabelAdapter
+import com.sun.noteapp.ui.textnote.NotificationHandler
 import com.sun.noteapp.utils.*
 import kotlinx.android.synthetic.main.activity_to_do_note.*
 import kotlinx.android.synthetic.main.toolbar_text_note.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ToDoNoteActivity : AppCompatActivity(),
-    View.OnClickListener {
+    View.OnClickListener,
+    ToDoAdapter.HandleToDoItemEvent,
+    ToDoNoteContract.View {
 
+    private val local by lazy {
+        LocalDataSource(NoteDatabase(this))
+    }
+    private val repository by lazy {
+        NoteLocalRepository(local)
+    }
+    private val presenter by lazy {
+        ToDoNotePresenter(this, repository)
+    }
+    private val toDoAdapter = ToDoAdapter(this)
     private val labelAdapter = LabelAdapter()
     private val date = Calendar.getInstance()
     private var note: Note? = null
-    private var listLabel = listOf<String>()
+    private var labels = mutableListOf<String>()
     private var remindTime = NONE
     private var noteId = 0
     private var noteStatus = NoteDatabase.UNHIDE
     private var noteColor = 0
     private var notePassword = NONE
-    private val toDos = mutableListOf<Pair<String, Boolean>>()
+    private val toDos = mutableListOf<ToDo>()
     private var itemTouchHelper: ItemTouchHelper? = null
     private val simpleDateFormat =
         SimpleDateFormat(DATETIME_FORMAT, Locale.getDefault())
@@ -71,7 +91,11 @@ class ToDoNoteActivity : AppCompatActivity(),
     private fun setUpRecycler() {
         recyclerToDoNoteLabel.adapter = labelAdapter
         val deviderItemDecoration = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
-        recyclerToDo.addItemDecoration(deviderItemDecoration)
+        recyclerToDo.apply {
+            addItemDecoration(deviderItemDecoration)
+            adapter = toDoAdapter
+        }
+        toDoAdapter.submitList(toDos)
     }
 
     private fun initData() {
@@ -90,10 +114,10 @@ class ToDoNoteActivity : AppCompatActivity(),
             textUpdateTime.text = it.modifyTime
             noteColor = it.color
             notePassword = it.password
-            if (it.label != NONE) listLabel =
-                ConvertString.labelStringDataToLabelList(it.label)
-            labelAdapter.submitList(listLabel)
-            toDos.addAll(ConvertString.actionDataStringToActionCheckList(it.content))
+            if (it.label != NONE) labels.addAll(ConvertString.labelStringDataToLabelList(it.label))
+            labelAdapter.submitList(labels)
+            toDos.addAll(ConvertString.convertToDoDataStringToList(it.content))
+            toDoAdapter.submitList(toDos)
         }
         updateView(noteColor)
     }
@@ -111,6 +135,10 @@ class ToDoNoteActivity : AppCompatActivity(),
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
+                val from = viewHolder.adapterPosition
+                val to = target.adapterPosition
+                Collections.swap(toDos, from, to)
+                toDoAdapter.notifyItemMoved(from, to)
                 return true
             }
 
@@ -134,6 +162,7 @@ class ToDoNoteActivity : AppCompatActivity(),
             if (buttonAlarmToDoNote.text.isNotEmpty()) showDeleteAlarmDialog()
             true
         }
+        R.id.bottomMenuUnlock -> showUnlockDialog()
         else -> false
     }
 
@@ -182,6 +211,15 @@ class ToDoNoteActivity : AppCompatActivity(),
             }).show()
     }
 
+    private fun showUnlockDialog(): Boolean {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.message_confirm_delete)
+            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = NONE }
+            .setNegativeButton(R.string.button_cancel) { _, _ -> }
+            .show()
+        return true
+    }
+
     private fun updateView(params: Int) {
         noteColor = params
         val mediumColor = ColorPicker.getMediumColor(params)
@@ -192,7 +230,7 @@ class ToDoNoteActivity : AppCompatActivity(),
         horizontalScrollLabel.setBackgroundResource(mediumColor)
         buttonAlarmToDoNote.setBackgroundResource(mediumColor)
         toolbarBottom.setBackgroundResource(mediumColor)
-        if (listLabel.isEmpty()) horizontalScrollLabel.gone()
+        if (labels.isEmpty()) horizontalScrollLabel.gone()
     }
 
     private fun showDateTimePickerDialog() {
@@ -221,6 +259,7 @@ class ToDoNoteActivity : AppCompatActivity(),
         when (view?.id) {
             R.id.imageButtonHeaderColorTextNote -> showImageColorDialog()
             R.id.buttonAlarmToDoNote -> showDateTimePickerDialog()
+            R.id.textAddItem -> showAddToDoDialog()
             R.id.imageButtonBottomSaveToDoNote -> {
                 if (editTitleTextNote.text.isEmpty()) {
                     showToast(getString(R.string.message_error_save))
@@ -232,6 +271,92 @@ class ToDoNoteActivity : AppCompatActivity(),
     }
 
     private fun saveNote() {
+        val note = Note(
+            Note.INVALID_ID,
+            editTitleTextNote.text.toString(),
+            ConvertString.convertToDoListToDataString(toDos),
+            TODO_NOTE,
+            noteColor,
+            NONE,
+            getCurrentTime(),
+            remindTime,
+            notePassword,
+            noteStatus
+        )
+        val duration: Long =
+            (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
+        if (remindTime != NONE) {
+            WorkManager.getInstance(this).cancelAllWorkByTag(noteId.toString())
+            setReminder(noteId, editTitleTextNote.text.toString(), duration)
+        }
+        if (noteId == 0) {
+            presenter.addNote(note)
+        } else {
+            presenter.editNote(noteId, note)
+        }
+    }
+
+    private fun setReminder(id: Int, title: String, duration: Long) {
+        val data = Data.Builder()
+            .putInt(KEY_ID, id)
+            .putString(KEY_TITLE, title)
+            .build()
+        val request = OneTimeWorkRequest.Builder(NotificationHandler::class.java)
+            .setInitialDelay(duration, TimeUnit.SECONDS)
+            .addTag(id.toString())
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(this).enqueue(request)
+    }
+
+    private fun showAddToDoDialog() {
+        InputTextDialog(this,
+            getString(R.string.dialog_add_to_do),
+            getString(R.string.button_add),
+            object : InputTextDialog.HandleInputTextDialogEvent {
+                override fun getInputString(text: String) {
+                    addToDo(text)
+                }
+            }).show()
+    }
+
+    private fun addToDo(toDoName: String) {
+        toDos.add(ToDo(toDoName, false))
+        toDoAdapter.notifyItemInserted(toDos.size)
+    }
+
+    override fun onItemToDoClick(position: Int) {
+        val toDo = ToDo(toDos[position].name, !toDos[position].isComplete)
+        toDos.removeAt(position)
+        toDos.add(position, toDo)
+    }
+
+    override fun changeToDoName(position: Int) {
+        InputTextDialog(
+            this,
+            getString(R.string.dialog_add_to_do),
+            null,
+            object : InputTextDialog.HandleInputTextDialogEvent {
+                override fun getInputString(text: String) {
+                    val toDo = ToDo(text, toDos[position].isComplete)
+                    toDos.removeAt(position)
+                    toDos.add(position, toDo)
+                    toDoAdapter.notifyItemChanged(position)
+                }
+            }).show()
+    }
+
+    override fun deleteToDoItem(position: Int) {
+        toDoAdapter.notifyItemRemoved(position)
+        toDos.removeAt(position)
+    }
+
+    override fun onDragIconMove(holder: ToDoAdapter.ViewHolder) {
+        itemTouchHelper?.startDrag(holder)
+    }
+
+    override fun backToListNote() {
+        finish()
     }
 
     companion object {

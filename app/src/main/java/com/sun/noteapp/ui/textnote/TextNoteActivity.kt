@@ -2,7 +2,6 @@ package com.sun.noteapp.ui.textnote
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -50,10 +49,10 @@ class TextNoteActivity : AppCompatActivity(),
     private var note: Note? = null
     private var listLabel = listOf<String>()
     private var remindTime = NONE
-    private var id = 0
-    private var status = "0"
-    private var color = 9
-    private var password = NONE
+    private var noteId = 0
+    private var noteStatus = "0"
+    private var noteColor = 9
+    private var notePassword = NONE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_text_note)
@@ -76,7 +75,7 @@ class TextNoteActivity : AppCompatActivity(),
 
     private fun openDialog(itemId: Int?) = when (itemId) {
         R.id.bottomMenuDelete -> {
-            if (id != 0) showDeleteDialog()
+            if (noteId != 0) showDeleteDialog()
             true
         }
         R.id.bottomMenuLock -> showPassDialog()
@@ -91,7 +90,7 @@ class TextNoteActivity : AppCompatActivity(),
     private fun showUnlockDialog(): Boolean {
         AlertDialog.Builder(this)
             .setMessage(R.string.message_confirm_delete)
-            .setPositiveButton(R.string.button_yes) { _, _ -> password = NONE }
+            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = NONE }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
         return true
@@ -117,9 +116,9 @@ class TextNoteActivity : AppCompatActivity(),
             )
             inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
             transformationMethod = PasswordTransformationMethod.getInstance()
-            if (password != NONE) {
-                setText(password)
-                setSelection(password.length)
+            if (notePassword != NONE) {
+                setText(notePassword)
+                setSelection(notePassword.length)
             }
         }
 
@@ -127,7 +126,7 @@ class TextNoteActivity : AppCompatActivity(),
             .setMessage(R.string.message_input_password)
             .setView(input)
             .setPositiveButton(R.string.button_set) { _, _ ->
-                password = input.text.toString()
+                notePassword = input.text.toString()
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
@@ -139,7 +138,7 @@ class TextNoteActivity : AppCompatActivity(),
             .setTitle(R.string.message_confirm_delete)
             .setMessage(R.string.message_delete)
             .setPositiveButton(R.string.button_yes) { _, _ ->
-                status = getCurrentDate()
+                noteStatus = getCurrentDate()
                 saveNote()
             }
             .setNegativeButton(R.string.button_no) { _, _ -> }
@@ -149,7 +148,7 @@ class TextNoteActivity : AppCompatActivity(),
     private fun initData() {
         note = intent.getParcelableExtra(INTENT_NOTE_DETAIL)
         note?.let {
-            id = it.id
+            noteId = it.id
             if (it.remindTime != NONE) {
                 date.time = it.remindTime.formatDate()
                 buttonAlarmTextNote.text = it.remindTime
@@ -164,13 +163,13 @@ class TextNoteActivity : AppCompatActivity(),
             }
             if (it.remindTime != NONE) buttonAlarmTextNote.text = it.remindTime
             textUpdateTime.text = it.modifyTime
-            color = it.color
-            password = it.password
+            noteColor = it.color
+            notePassword = it.password
             if (it.label != NONE) listLabel =
                 ConvertString.labelStringDataToLabelList(it.label)
             adapter.submitList(listLabel)
         }
-        updateView(color)
+        updateView(noteColor)
     }
 
     override fun onClick(view: View?) {
@@ -199,7 +198,7 @@ class TextNoteActivity : AppCompatActivity(),
     }
 
     private fun updateView(params: Int) {
-        color = params
+        noteColor = params
         val mediumColor = ColorPicker.getMediumColor(params)
         val lightColor = ColorPicker.getLightColor(params)
         imageButtonHeaderColorTextNote.setBackgroundResource(mediumColor)
@@ -230,29 +229,28 @@ class TextNoteActivity : AppCompatActivity(),
     }
 
     private fun saveNote() {
-        val values = ContentValues()
-        values.put(NoteDatabase.NOTE_TITLE, editTitleTextNote.text.toString())
-        values.put(NoteDatabase.NOTE_CONTENT, lineContentTextNote.text.toString())
-        values.put(NoteDatabase.NOTE_TYPE, TYPE_TEXT_NOTE)
-        values.put(
-            NoteDatabase.NOTE_LABEL,
-            "music_us_uk_best_music_us_uk_best_music_us_uk_best_music_us_uk_best_music_us_uk_best"
+        val note = Note(
+            Note.INVALID_ID,
+            editTitleTextNote.text.toString(),
+            lineContentTextNote.text.toString(),
+            TYPE_TEXT_NOTE,
+            noteColor,
+            NONE,
+            getCurrentTime(),
+            remindTime,
+            notePassword,
+            noteStatus
         )
-        values.put(NoteDatabase.NOTE_COLOR, color)
-        values.put(NoteDatabase.NOTE_MODIFYTIME, getCurrentTime())
-        values.put(NoteDatabase.NOTE_REMINDTIME, remindTime)
-        values.put(NoteDatabase.NOTE_PASSWORD, password)
-        values.put(NoteDatabase.NOTE_HIDE, status)
         val duration: Long =
             (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
         if (remindTime != NONE) {
-            WorkManager.getInstance(this).cancelAllWorkByTag(id.toString())
-            setReminder(id, editTitleTextNote.text.toString(), duration)
+            WorkManager.getInstance(this).cancelAllWorkByTag(noteId.toString())
+            setReminder(noteId, editTitleTextNote.text.toString(), duration)
         }
-        if (id == 0) {
-            presenter.addNote(values)
+        if (noteId == 0) {
+            presenter.addNote(note)
         } else {
-            presenter.editNote(id, values)
+            presenter.editNote(noteId, note)
         }
     }
 
@@ -275,6 +273,5 @@ class TextNoteActivity : AppCompatActivity(),
             Intent(context, TextNoteActivity::class.java).apply {
                 putExtra(INTENT_NOTE_DETAIL, note)
             }
-        const val DATE_FORMAT = "yyyy-MM-dd HH:mm"
     }
 }
