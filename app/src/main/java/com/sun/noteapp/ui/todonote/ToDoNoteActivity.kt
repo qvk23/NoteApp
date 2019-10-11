@@ -1,11 +1,14 @@
 package com.sun.noteapp.ui.todonote
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.source.local.NoteDatabase
+import com.sun.noteapp.ui.base.BaseDialog
+import com.sun.noteapp.ui.textnote.ImageColorDialog
 import com.sun.noteapp.ui.textnote.LabelAdapter
 import com.sun.noteapp.utils.*
 import kotlinx.android.synthetic.main.activity_to_do_note.*
@@ -133,15 +138,48 @@ class ToDoNoteActivity : AppCompatActivity(),
     }
 
     private fun showDeleteAlarmDialog() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.message_alarm_off)
+            .setPositiveButton(R.string.button_yes) { _, _ ->
+                buttonAlarmToDoNote.text = null
+                remindTime = NONE
+            }
+            .setNegativeButton(R.string.button_cancel) { _, _ -> }
+            .show()
     }
 
     private fun showPassDialog() {
+        InputTextDialog(this,
+            getString(R.string.message_input_password),
+            null,
+            object : InputTextDialog.HandleInputTextDialogEvent {
+                override fun getInputString(text: String) {
+                    notePassword = text
+                }
+            }).show()
     }
 
     private fun showDeleteDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.message_confirm_delete)
+            .setMessage(R.string.message_delete)
+            .setPositiveButton(R.string.button_yes) { _, _ ->
+                noteStatus = getCurrentDate()
+                saveNote()
+            }
+            .setNegativeButton(R.string.button_no) { _, _ -> }
+            .show()
     }
 
     private fun showImageColorDialog() {
+        ImageColorDialog(
+            this,
+            R.layout.dialog_color,
+            object : BaseDialog.OnLoadDialogCallback<Int> {
+                override fun onSuccess(params: Int) {
+                    updateView(params)
+                }
+            }).show()
     }
 
     private fun updateView(params: Int) {
@@ -158,9 +196,25 @@ class ToDoNoteActivity : AppCompatActivity(),
     }
 
     private fun showDateTimePickerDialog() {
+        DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                date.set(year, monthOfYear, dayOfMonth)
+                showTimePickerDialog()
+            },
+            date.get(Calendar.YEAR),
+            date.get(Calendar.MONTH),
+            date.get(Calendar.DATE)
+        ).show()
     }
 
     private fun showTimePickerDialog() {
+        TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
+            date.set(Calendar.HOUR_OF_DAY, hourOfDay)
+            date.set(Calendar.MINUTE, minutes)
+            buttonAlarmToDoNote.text = simpleDateFormat.format(date.time)
+            remindTime = simpleDateFormat.format(date.time)
+        }, date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE), true).show()
     }
 
     override fun onClick(view: View?) {
@@ -169,7 +223,7 @@ class ToDoNoteActivity : AppCompatActivity(),
             R.id.buttonAlarmToDoNote -> showDateTimePickerDialog()
             R.id.imageButtonBottomSaveToDoNote -> {
                 if (editTitleTextNote.text.isEmpty()) {
-                    showToast(R.string.message_error_save.toString())
+                    showToast(getString(R.string.message_error_save))
                 } else {
                     saveNote()
                 }
