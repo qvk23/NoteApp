@@ -24,14 +24,16 @@ import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.local.LocalDataSource
 import com.sun.noteapp.data.source.local.NoteDatabase
 import com.sun.noteapp.ui.base.BaseDialog
-import com.sun.noteapp.ui.home.dialog.ColorDialog
-import com.sun.noteapp.ui.home.dialog.LabelDialog
-import com.sun.noteapp.ui.home.dialog.SortDialog
-import com.sun.noteapp.ui.home.dialog.ViewDialog
+import com.sun.noteapp.ui.home.dialog.*
 import com.sun.noteapp.ui.search.SearchActivity
 import com.sun.noteapp.ui.textnote.TextNoteActivity
 import com.sun.noteapp.ui.trash.TrashActivity
 import com.sun.noteapp.utils.*
+import com.sun.noteapp.ui.todonote.ToDoNoteActivity
+import com.sun.noteapp.utils.TEXT_NOTE
+import com.sun.noteapp.utils.getScreenWidth
+import com.sun.noteapp.utils.getListColor
+import com.sun.noteapp.utils.showToast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_home_screen.*
 import java.lang.Exception
@@ -89,13 +91,25 @@ class MainActivity : AppCompatActivity(),
         drawerNavigate.addDrawerListener(toggle)
         toggle.syncState()
         fabAdd.setOnClickListener {
-            startActivity(TextNoteActivity.getIntent(this, null))
+            CreateNoteDialog(this, object : BaseDialog.OnLoadDialogCallback<Int> {
+                override fun onSuccess(params: Int) {
+                    openNoteScreen(params, null)
+                }
+            }).show()
         }
     }
 
     private fun initData() {
         SharePreferencesHelper.init(this)
         setViewType(SharePreferencesHelper.type)
+    }
+
+    private fun openNoteScreen(noteType: Int, note: Note?) {
+        if (noteType == TEXT_NOTE) {
+            startActivity(TextNoteActivity.getIntent(this@MainActivity, note))
+        } else {
+            startActivity(ToDoNoteActivity.getIntent(this@MainActivity, note))
+        }
     }
 
     override fun onResume() {
@@ -128,7 +142,7 @@ class MainActivity : AppCompatActivity(),
 
     override fun showNoteDetail(position: Int, note: Note) {
         if (note.password == NONE) {
-            startActivity(TextNoteActivity.getIntent(this, note))
+            openNoteScreen(note.type, note)
         } else {
             val input = EditText(this).apply {
                 layoutParams = ConstraintLayout.LayoutParams(
@@ -254,7 +268,11 @@ class MainActivity : AppCompatActivity(),
         SortDialog(this, R.layout.dialog_sort, object : BaseDialog.OnLoadDialogCallback<String> {
             override fun onSuccess(params: String) {
                 SharePreferencesHelper.sortType = params
-                presenter.getAllNotesWithOption(SharePreferencesHelper.color, selectedLabels, params)
+                presenter.getAllNotesWithOption(
+                    SharePreferencesHelper.color,
+                    selectedLabels,
+                    params
+                )
             }
         }).show()
     }

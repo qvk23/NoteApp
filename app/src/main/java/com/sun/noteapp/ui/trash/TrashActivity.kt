@@ -125,8 +125,8 @@ class TrashActivity : AppCompatActivity(),
 
     private fun showSortDialog() {
         SortDialog(this, R.layout.dialog_sort, object : BaseDialog.OnLoadDialogCallback<String> {
-            override fun onSuccess(parrams: String) {
-                sortType = parrams
+            override fun onSuccess(params: String) {
+                sortType = params
                 presenter.getAllHideNote(sortType)
             }
         }).show()

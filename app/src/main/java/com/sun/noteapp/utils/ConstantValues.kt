@@ -16,3 +16,6 @@ const val SECOND_TO_MINUTES = 60
 const val MILLISECOND_TO_SECONDS = 1000
 const val KEY_TITLE = "title"
 const val KEY_ID = "id"
+const val TEXT_NOTE = 1
+const val TODO_NOTE = 2
+const val DATETIME_FORMAT = "yyyy-MM-dd HH:mm"
