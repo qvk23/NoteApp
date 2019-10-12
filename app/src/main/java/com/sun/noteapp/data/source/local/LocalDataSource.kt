@@ -1,28 +1,27 @@
 package com.sun.noteapp.data.source.local
 
-import android.content.ContentValues
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.source.NoteDataSource
 import com.sun.noteapp.data.source.OnDataModifiedCallback
 
 class LocalDataSource(private val database: NoteDatabase) : NoteDataSource.Local {
 
-    override fun addNote(value: ContentValues, callback: OnDataModifiedCallback<Boolean>) {
-        LoadDataAsync(object : LocalDataHandler<ContentValues, Boolean> {
-            override fun execute(params: ContentValues): Boolean =
+    override fun addNote(note: Note, callback: OnDataModifiedCallback<Boolean>) {
+        LoadDataAsync(object : LocalDataHandler<Note, Boolean> {
+            override fun execute(params: Note): Boolean =
                 database.addNote(params)
-        }, callback).execute(value)
+        }, callback).execute(note)
     }
 
     override fun editNote(
         id: Int,
-        value: ContentValues,
+        note: Note,
         callback: OnDataModifiedCallback<Boolean>
     ) {
-        LoadDataAsync(object : LocalDataHandler<Pair<Int, ContentValues>, Boolean> {
-            override fun execute(params: Pair<Int, ContentValues>): Boolean =
+        LoadDataAsync(object : LocalDataHandler<Pair<Int, Note>, Boolean> {
+            override fun execute(params: Pair<Int, Note>): Boolean =
                 database.updateNote(params.first, params.second)
-        }, callback).execute(Pair(id, value))
+        }, callback).execute(Pair(id, note))
     }
 
     override fun deleteNote(id: Int, callback: OnDataModifiedCallback<Boolean>) {

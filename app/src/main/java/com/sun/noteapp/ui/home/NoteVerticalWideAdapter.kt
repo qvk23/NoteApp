@@ -1,6 +1,9 @@
 package com.sun.noteapp.ui.home
 
 import android.annotation.SuppressLint
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +13,7 @@ import com.sun.noteapp.R
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.ui.base.BaseRecyclerViewAdapter
 import com.sun.noteapp.ui.base.BaseViewHolder
-import com.sun.noteapp.utils.ColorPicker
-import com.sun.noteapp.utils.ConvertString
-import com.sun.noteapp.utils.gone
-import com.sun.noteapp.utils.visible
+import com.sun.noteapp.utils.*
 import kotlinx.android.synthetic.main.item_note_vertical_wide.view.*
 
 const val PADDING_WIDTH = 10
@@ -55,7 +55,7 @@ class NoteVerticalWideAdapter(
                 textContentNoteVerticalWide.text = content
 
                 textRemindTimeNoteVerticalWide.apply {
-                    text = itemData.remindTime
+                    setRemindTime(itemData.remindTime)
                     if (itemData.remindTime == Note.NONE) gone() else visible()
                 }
 
@@ -72,6 +72,22 @@ class NoteVerticalWideAdapter(
                 } else {
                     iconLockNoteVerticalWide.gone()
                 }
+            }
+        }
+
+        private fun setRemindTime(time: String) {
+            val currentTime = getCurrentTimeWithoutSecond()
+            if (currentTime.compareTo(time) > 0) {
+                val spannableString = SpannableString(time)
+                spannableString.setSpan(
+                    StrikethroughSpan(),
+                    0,
+                    time.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                itemView.textRemindTimeNoteVerticalWide.text = spannableString
+            } else {
+                itemView.textRemindTimeNoteVerticalWide.text = time
             }
         }
 

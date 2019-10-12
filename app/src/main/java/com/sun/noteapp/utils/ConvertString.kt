@@ -1,43 +1,45 @@
 package com.sun.noteapp.utils
 
+import com.sun.noteapp.data.model.ToDo
+
 object ConvertString {
 
-    fun actionListToActionDataString(actions: List<String>): String {
-        var result = ""
-        actions.forEach {
-            result += "_0$it"
+    fun convertToDoDataStringToList(dataString: String): List<ToDo> =
+        if (dataString.isEmpty()) {
+            emptyList()
+        } else {
+            dataString.split("$UNDER_STROKE").map { item: String ->
+                ToDo(
+                    item.substring(1),
+                    item.first() == '1'
+                )
+            }
         }
-        result = result.substring(1)
+
+    fun convertToDoListToDataString(toDos: List<ToDo>): String {
+        var result = ""
+        val stringBuilder = StringBuilder()
+        if (toDos.isNotEmpty()) {
+            toDos.forEach {
+                val isComplete = if (it.isComplete) "1" else "0"
+                stringBuilder.append("$UNDER_STROKE$isComplete${it.name}")
+            }
+            result = stringBuilder.toString().substring(1)
+        }
         return result
     }
 
-    fun actionDataStringToActionCheckList(str: String): List<Pair<String, Boolean>> {
-        val checkList = mutableListOf<Pair<String, Boolean>>()
-        val arrayS = str.split("_")
-        arrayS.forEach {
-            val check = it[0] == '1'
-            checkList.add(Pair(it.substring(1), check))
-        }
-        return checkList
-    }
-
-    fun actionCheckListToActionDataString(checkList: List<Pair<String, Boolean>>): String {
+    fun showActionCheckListByDataString(dataString: String): String {
         var result = ""
-        checkList.forEach {
-            val check = if (it.second) "1" else "0"
-            result += "_$check${it.first}"
+        val stringBuilder = StringBuilder()
+        if (dataString.isNotEmpty()) {
+            val arrays = dataString.split("$UNDER_STROKE")
+            arrays.forEach {
+                stringBuilder.append("\n+ ${it.substring(1)}")
+            }
+            result = stringBuilder.toString().substring(1)
         }
-        result = result.substring(1)
         return result
-    }
-
-    fun showActionCheckListByDataString(str: String): String {
-        var result = ""
-        val arrays = str.split("_")
-        arrays.forEach {
-            result += "\n+ ${it.substring(1)}"
-        }
-        return result.substring(1)
     }
 
     fun labelListToLabelStringData(strings: List<String>): String {

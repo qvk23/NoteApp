@@ -1,8 +1,8 @@
-package com.sun.noteapp.ui.textnote
+package com.sun.noteapp.ui.todonote
 
 import com.sun.noteapp.data.model.Note
 
-interface TextNoteContract {
+interface ToDoNoteContract {
     interface View {
         fun backToListNote()
     }

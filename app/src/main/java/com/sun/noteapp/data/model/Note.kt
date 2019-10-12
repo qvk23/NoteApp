@@ -1,5 +1,6 @@
 package com.sun.noteapp.data.model
 
+import android.content.ContentValues
 import android.database.Cursor
 import android.os.Parcelable
 import com.sun.noteapp.data.source.local.NoteDatabase
@@ -33,5 +34,6 @@ data class Note(
 
     companion object {
         const val NONE = "none"
+        const val INVALID_ID = 0
     }
 }

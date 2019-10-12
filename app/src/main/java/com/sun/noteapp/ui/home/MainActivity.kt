@@ -162,12 +162,7 @@ class MainActivity : AppCompatActivity(),
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener {
                         if (input.text.toString() == note.password) {
-                            startActivity(
-                                TextNoteActivity.getIntent(
-                                    this,
-                                    note
-                                )
-                            )
+                            openNoteScreen(note.type, note)
                             dialog.dismiss()
                         } else {
                             showToast(resources.getString(R.string.message_wrong))

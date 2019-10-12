@@ -1,14 +1,14 @@
-package com.sun.noteapp.ui.textnote
+package com.sun.noteapp.ui.todonote
 
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.OnDataModifiedCallback
 import java.lang.Exception
 
-class TextNotePresenter(
-    private val view: TextNoteContract.View,
+class ToDoNotePresenter(
+    private val view: ToDoNoteContract.View,
     private val repository: NoteLocalRepository
-) : TextNoteContract.Presenter {
+) : ToDoNoteContract.Presenter {
 
     override fun editNote(id: Int, note: Note) {
         repository.editNote(id, note, object : OnDataModifiedCallback<Boolean> {

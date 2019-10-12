@@ -32,6 +32,7 @@ fun getListColor(): MutableList<Pair<Int?, String>> {
     }
     return colors
 }
+
 fun getMediumColor(): MutableList<Int> {
     val colors = mutableListOf<Int>()
     for (index in 1..9) {
@@ -43,15 +44,20 @@ fun getMediumColor(): MutableList<Int> {
 fun getCurrentTime(): String =
     SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
+fun getCurrentTimeWithoutSecond(): String =
+    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+
 fun getCurrentDate(): String =
     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
 fun Date.formatDate(): String = this.let {
     SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(it)
 }
+
 fun String.formatDate(): Date = this.let {
     SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).parse(it)
 }
+
 fun String.allIndexOf(word: String): List<Int> {
     val results = mutableListOf<Int>()
     var position = 0
