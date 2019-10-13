@@ -76,16 +76,16 @@ class SearchAdapter(
 
                 textRemindTimeNoteVerticalWide.apply {
                     text = itemData.remindTime
-                    if (text == NONE) gone() else visible()
+                    if (text == Note.NONE) gone() else visible()
                 }
 
                 layoutLabelNoteVerticalWide.apply {
                     removeAllViewsInLayout()
                     addLabelTextView(context, itemData.label, layoutLabelNoteVerticalWide)
-                    if (itemData.label == NONE) gone() else visible()
+                    if (itemData.label == Note.NONE) gone() else visible()
                 }
 
-                if (itemData.password != NONE) {
+                if (itemData.password != Note.NONE) {
                     iconLockNoteVerticalWide.visible()
                     layoutLabelNoteVerticalWide.gone()
                     textContentNoteVerticalWide.text = EMPTY

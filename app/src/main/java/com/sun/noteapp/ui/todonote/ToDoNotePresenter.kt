@@ -35,4 +35,15 @@ class ToDoNotePresenter(
 
         })
     }
+    override fun getNoteById(id: Int) {
+        repository.getNoteById(id, object : OnDataModifiedCallback<Note> {
+            override fun onSuccess(data: Note) {
+                view.initData(data)
+            }
+
+            override fun onFailed(exception: Exception) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
+    }
 }

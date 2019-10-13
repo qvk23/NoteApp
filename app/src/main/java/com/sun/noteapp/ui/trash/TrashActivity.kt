@@ -183,7 +183,7 @@ class TrashActivity : AppCompatActivity(),
         }
 
     override fun showNoteDetail(position: Int, item: Note) {
-        startActivity(TextNoteActivity.getIntent(this, item))
+        startActivity(TextNoteActivity.getIntent(this, item.id))
     }
 
     override fun setUpToolbarSelector(selectedItems: List<Int>) {

@@ -15,9 +15,9 @@ class InputTextDialog(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        textTitleDialog.setText(dialogTitle)
+        textTitleDialog.text = dialogTitle
         buttonSaveTitle?.let {
-            buttonSave.setText(it)
+            buttonSave.text = it
         }
     }
 

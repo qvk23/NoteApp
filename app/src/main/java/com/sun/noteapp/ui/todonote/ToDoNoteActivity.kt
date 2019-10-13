@@ -4,11 +4,12 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Paint
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,13 +51,12 @@ class ToDoNoteActivity : AppCompatActivity(),
     private val toDoAdapter = ToDoAdapter(this)
     private val labelAdapter = LabelAdapter()
     private val date = Calendar.getInstance()
-    private var note: Note? = null
     private var labels = mutableListOf<String>()
-    private var remindTime = NONE
+    private var remindTime = Note.NONE
     private var noteId = 0
     private var noteStatus = NoteDatabase.UNHIDE
     private var noteColor = 0
-    private var notePassword = NONE
+    private var notePassword = Note.NONE
     private val toDos = mutableListOf<ToDo>()
     private var itemTouchHelper: ItemTouchHelper? = null
     private val simpleDateFormat =
@@ -66,7 +66,8 @@ class ToDoNoteActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_to_do_note)
         initViews()
-        initData()
+        noteId = intent.getIntExtra(INTENT_NOTE_ID, 0)
+        if (noteId != 0) presenter.getNoteById(noteId) else horizontalScrollLabel.gone()
     }
 
     private fun initViews() {
@@ -98,28 +99,40 @@ class ToDoNoteActivity : AppCompatActivity(),
         toDoAdapter.submitList(toDos)
     }
 
-    private fun initData() {
-        note = intent.getParcelableExtra(INTENT_NOTE_DETAIL)
-        note?.let {
-            noteId = it.id
-            if (it.remindTime != NONE) {
-                date.time = simpleDateFormat.parse(it.remindTime)
-                buttonAlarmToDoNote.text = it.remindTime
-            }
-            editTitleTextNote.apply {
-                setText(it.title)
-                setSelection(it.title.length)
-            }
-            if (it.remindTime != NONE) buttonAlarmToDoNote.text = it.remindTime
-            textUpdateTime.text = it.modifyTime
-            noteColor = it.color
-            notePassword = it.password
-            if (it.label != NONE) labels.addAll(ConvertString.labelStringDataToLabelList(it.label))
-            labelAdapter.submitList(labels)
-            toDos.addAll(ConvertString.convertToDoDataStringToList(it.content))
-            toDoAdapter.submitList(toDos)
+    override fun initData(note: Note) {
+        initTopBar(note.title, note.color)
+        initContent(note.content, note.remindTime, note.label)
+        initBottomBar(note.password, note.modifyTime)
+    }
+
+    private fun initTopBar(title: String, color: Int) {
+        editTitleTextNote.apply {
+            setText(title)
+            setSelection(title.length)
         }
-        updateView(noteColor)
+        noteColor = color
+    }
+
+    private fun initContent(content: String, remindTime: String, label: String) {
+        if (remindTime != Note.NONE) {
+            date.time = remindTime.formatDate()
+            buttonAlarmToDoNote.text = remindTime
+            if (remindTime.formatDate().time < System.currentTimeMillis()) {
+                buttonAlarmToDoNote.apply {
+                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                }
+            }
+        }
+        this.remindTime = remindTime
+        if (label != Note.NONE) labels.addAll(ConvertString.labelStringDataToLabelList(label))
+        labelAdapter.submitList(labels)
+        toDos.addAll(ConvertString.convertToDoDataStringToList(content))
+        toDoAdapter.submitList(toDos)
+    }
+
+    private fun initBottomBar(password: String, modifyTime: String) {
+        textUpdateTime.text = modifyTime
+        notePassword = password
     }
 
     private fun setUpEventMoveToDo() {
@@ -171,7 +184,7 @@ class ToDoNoteActivity : AppCompatActivity(),
             .setMessage(R.string.message_alarm_off)
             .setPositiveButton(R.string.button_yes) { _, _ ->
                 buttonAlarmToDoNote.text = null
-                remindTime = NONE
+                remindTime = Note.NONE
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
@@ -214,7 +227,7 @@ class ToDoNoteActivity : AppCompatActivity(),
     private fun showUnlockDialog(): Boolean {
         AlertDialog.Builder(this)
             .setMessage(R.string.message_confirm_delete)
-            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = NONE }
+            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = Note.NONE }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
         return true
@@ -277,7 +290,7 @@ class ToDoNoteActivity : AppCompatActivity(),
             ConvertString.convertToDoListToDataString(toDos),
             TODO_NOTE,
             noteColor,
-            NONE,
+            Note.NONE,
             getCurrentTime(),
             remindTime,
             notePassword,
@@ -285,9 +298,17 @@ class ToDoNoteActivity : AppCompatActivity(),
         )
         val duration: Long =
             (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
-        if (remindTime != NONE) {
-            WorkManager.getInstance(this).cancelAllWorkByTag(noteId.toString())
-            setReminder(noteId, editTitleTextNote.text.toString(), duration)
+        if (remindTime != Note.NONE && remindTime.formatDate().time > System.currentTimeMillis()) {
+            if (noteId == 0) {
+                setReminder(
+                    SharePreferencesHelper.count + 1,
+                    editTitleTextNote.text.toString(),
+                    duration
+                )
+            } else {
+                WorkManager.getInstance(this).cancelAllWorkByTag(noteId.toString())
+                setReminder(noteId, editTitleTextNote.text.toString(), duration)
+            }
         }
         if (noteId == 0) {
             presenter.addNote(note)
@@ -300,6 +321,7 @@ class ToDoNoteActivity : AppCompatActivity(),
         val data = Data.Builder()
             .putInt(KEY_ID, id)
             .putString(KEY_TITLE, title)
+            .putInt(KEY_TYPE_NOTE, TYPE_CHECK_NOTE)
             .build()
         val request = OneTimeWorkRequest.Builder(NotificationHandler::class.java)
             .setInitialDelay(duration, TimeUnit.SECONDS)
@@ -360,11 +382,9 @@ class ToDoNoteActivity : AppCompatActivity(),
     }
 
     companion object {
-        fun getIntent(context: Context, note: Note?) =
+        fun getIntent(context: Context, id: Int) =
             Intent(context, ToDoNoteActivity::class.java).apply {
-                note?.let {
-                    putExtra(INTENT_NOTE_DETAIL, it)
-                }
+                putExtra(INTENT_NOTE_ID, id)
             }
     }
 }

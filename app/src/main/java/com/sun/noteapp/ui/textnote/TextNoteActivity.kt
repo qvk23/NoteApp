@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -12,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -30,7 +32,13 @@ import java.util.concurrent.TimeUnit
 
 class TextNoteActivity : AppCompatActivity(),
     View.OnClickListener,
-    TextNoteContract.View {
+    TextNoteContract.View,
+    Toolbar.OnMenuItemClickListener {
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        openDialog(item?.itemId)
+        return true
+    }
+
     override fun backToListNote() {
         finish()
     }
@@ -46,27 +54,26 @@ class TextNoteActivity : AppCompatActivity(),
     }
     private val adapter = LabelAdapter()
     private val date = Calendar.getInstance()
-    private var note: Note? = null
     private var listLabel = listOf<String>()
-    private var remindTime = NONE
+    private var remindTime = Note.NONE
     private var noteId = 0
     private var noteStatus = "0"
     private var noteColor = 9
-    private var notePassword = NONE
+    private var notePassword = Note.NONE
+    private val workManager = WorkManager.getInstance(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_text_note)
         initView()
-        initData()
+        noteId = intent.getIntExtra(INTENT_NOTE_ID, 0)
+        if (noteId != 0) presenter.getNoteById(noteId) else horizontalScrollLabel.gone()
     }
 
     private fun initView() {
         setSupportActionBar(toolbarTitle)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbarBottom.inflateMenu(R.menu.bottom_option_menu)
-        toolbarBottom.setOnMenuItemClickListener { item: MenuItem? ->
-            openDialog(item?.itemId)
-        }
+        toolbarBottom.setOnMenuItemClickListener(this)
         imageButtonHeaderColorTextNote.setOnClickListener(this)
         buttonAlarmTextNote.setOnClickListener(this)
         imageButtonBottomSaveTextNote.setOnClickListener(this)
@@ -90,7 +97,7 @@ class TextNoteActivity : AppCompatActivity(),
     private fun showUnlockDialog(): Boolean {
         AlertDialog.Builder(this)
             .setMessage(R.string.message_confirm_delete)
-            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = NONE }
+            .setPositiveButton(R.string.button_yes) { _, _ -> notePassword = Note.NONE }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
         return true
@@ -101,27 +108,28 @@ class TextNoteActivity : AppCompatActivity(),
             .setMessage(R.string.message_alarm_off)
             .setPositiveButton(R.string.button_yes) { _, _ ->
                 buttonAlarmTextNote.text = null
-                remindTime = NONE
+                remindTime = Note.NONE
+                workManager.cancelAllWorkByTag(noteId.toString())
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> }
             .show()
     }
 
-    private fun showPassDialog(): Boolean {
-        val input = EditText(this)
-        input.apply {
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
-                ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-            )
-            inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-            transformationMethod = PasswordTransformationMethod.getInstance()
-            if (notePassword != NONE) {
-                setText(notePassword)
-                setSelection(notePassword.length)
+    private fun showDeleteDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.message_confirm_delete)
+            .setMessage(R.string.message_delete)
+            .setPositiveButton(R.string.button_yes) { _, _ ->
+                noteStatus = getCurrentDate()
+                workManager.cancelAllWorkByTag(noteId.toString())
+                saveNote()
             }
-        }
+            .setNegativeButton(R.string.button_no) { _, _ -> }
+            .show()
+    }
 
+    private fun showPassDialog(): Boolean {
+        val input = getInputText()
         AlertDialog.Builder(this)
             .setMessage(R.string.message_input_password)
             .setView(input)
@@ -133,43 +141,57 @@ class TextNoteActivity : AppCompatActivity(),
         return true
     }
 
-    private fun showDeleteDialog() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.message_confirm_delete)
-            .setMessage(R.string.message_delete)
-            .setPositiveButton(R.string.button_yes) { _, _ ->
-                noteStatus = getCurrentDate()
-                saveNote()
-            }
-            .setNegativeButton(R.string.button_no) { _, _ -> }
-            .show()
+    private fun getInputText() = EditText(this).apply {
+        layoutParams = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
+            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+        )
+        inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+        transformationMethod = PasswordTransformationMethod.getInstance()
+        if (notePassword != Note.NONE) {
+            setText(notePassword)
+            setSelection(notePassword.length)
+        }
     }
 
-    private fun initData() {
-        note = intent.getParcelableExtra(INTENT_NOTE_DETAIL)
-        note?.let {
-            noteId = it.id
-            if (it.remindTime != NONE) {
-                date.time = it.remindTime.formatDate()
-                buttonAlarmTextNote.text = it.remindTime
-            }
-            editTitleTextNote.apply {
-                setText(it.title)
-                setSelection(it.title.length)
-            }
-            if (it.content != NONE) lineContentTextNote.apply {
-                setText(it.content)
-                setSelection(it.content.length)
-            }
-            if (it.remindTime != NONE) buttonAlarmTextNote.text = it.remindTime
-            textUpdateTime.text = it.modifyTime
-            noteColor = it.color
-            notePassword = it.password
-            if (it.label != NONE) listLabel =
-                ConvertString.labelStringDataToLabelList(it.label)
-            adapter.submitList(listLabel)
-        }
+    override fun initData(note: Note) {
+        initTopBar(note.title, note.color)
+        initContent(note.content, note.remindTime, note.label)
+        initBottomBar(note.password, note.modifyTime)
         updateView(noteColor)
+    }
+
+    private fun initTopBar(title: String, color: Int) {
+        editTitleTextNote.apply {
+            setText(title)
+            setSelection(title.length)
+        }
+        noteColor = color
+    }
+
+    private fun initContent(content: String, remindTime: String, label: String) {
+        if (content != Note.NONE) lineContentTextNote.apply {
+            setText(content)
+            setSelection(content.length)
+        }
+        if (remindTime != Note.NONE) {
+            date.time = remindTime.formatDate()
+            buttonAlarmTextNote.text = remindTime
+            if (remindTime.formatDate().time < System.currentTimeMillis()) {
+                buttonAlarmTextNote.apply {
+                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                }
+            }
+        }
+        this.remindTime = remindTime
+        if (label != Note.NONE) listLabel =
+            ConvertString.labelStringDataToLabelList(label)
+        adapter.submitList(listLabel)
+    }
+
+    private fun initBottomBar(password: String, modifyTime: String) {
+        textUpdateTime.text = modifyTime
+        notePassword = password
     }
 
     override fun onClick(view: View?) {
@@ -178,7 +200,7 @@ class TextNoteActivity : AppCompatActivity(),
             R.id.buttonAlarmTextNote -> showDateTimePickerDialog()
             R.id.imageButtonBottomSaveTextNote -> {
                 if (editTitleTextNote.text.isEmpty()) {
-                    showToast(R.string.message_error_save.toString())
+                    showToast(resources.getString(R.string.message_error_save))
                 } else {
                     saveNote()
                 }
@@ -215,17 +237,26 @@ class TextNoteActivity : AppCompatActivity(),
             this,
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 date.set(year, monthOfYear, dayOfMonth)
-                TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
-                    date.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                    date.set(Calendar.MINUTE, minutes)
-                    buttonAlarmTextNote.text = date.time.formatDate()
-                    remindTime = date.time.formatDate()
-                }, date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE), true).show()
+                showTimePickerDialog()
             },
             date.get(Calendar.YEAR),
             date.get(Calendar.MONTH),
             date.get(Calendar.DATE)
         ).show()
+    }
+
+    private fun showTimePickerDialog() {
+        TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
+            date.set(Calendar.HOUR_OF_DAY, hourOfDay)
+            date.set(Calendar.MINUTE, minutes)
+            buttonAlarmTextNote.text = date.time.formatDate()
+            if (date.time.time > System.currentTimeMillis()) {
+                buttonAlarmTextNote.apply {
+                    paintFlags = 0
+                }
+            }
+            remindTime = date.time.formatDate()
+        }, date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE), true).show()
     }
 
     private fun saveNote() {
@@ -235,17 +266,25 @@ class TextNoteActivity : AppCompatActivity(),
             lineContentTextNote.text.toString(),
             TYPE_TEXT_NOTE,
             noteColor,
-            NONE,
+            Note.NONE,
             getCurrentTime(),
             remindTime,
             notePassword,
             noteStatus
         )
         val duration: Long =
-            (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
-        if (remindTime != NONE) {
-            WorkManager.getInstance(this).cancelAllWorkByTag(noteId.toString())
-            setReminder(noteId, editTitleTextNote.text.toString(), duration)
+            (remindTime.formatDate().time - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
+        if (remindTime != Note.NONE && remindTime.formatDate().time > System.currentTimeMillis()) {
+            if (noteId == 0) {
+                setReminder(
+                    SharePreferencesHelper.count + 1,
+                    editTitleTextNote.text.toString(),
+                    duration
+                )
+            } else {
+                workManager.cancelAllWorkByTag(noteId.toString())
+                setReminder(noteId, editTitleTextNote.text.toString(), duration)
+            }
         }
         if (noteId == 0) {
             presenter.addNote(note)
@@ -258,20 +297,21 @@ class TextNoteActivity : AppCompatActivity(),
         val data = Data.Builder()
             .putInt(KEY_ID, id)
             .putString(KEY_TITLE, title)
+            .putInt(KEY_TYPE_NOTE, TYPE_TEXT_NOTE)
             .build()
         val request = OneTimeWorkRequest.Builder(NotificationHandler::class.java)
             .setInitialDelay(duration, TimeUnit.SECONDS)
             .addTag(id.toString())
             .setInputData(data)
             .build()
-        WorkManager.getInstance(this).enqueue(request)
+        workManager.enqueue(request)
 
     }
 
     companion object {
-        fun getIntent(context: Context, note: Note?) =
+        fun getIntent(context: Context, id: Int) =
             Intent(context, TextNoteActivity::class.java).apply {
-                putExtra(INTENT_NOTE_DETAIL, note)
+                putExtra(INTENT_NOTE_ID, id)
             }
     }
 }

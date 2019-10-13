@@ -12,7 +12,7 @@
     <string name="option_menu_cancel_remind">Alarm off</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="menu_item_note">Note</string>
+    <string name="menu_item_note">All Note</string>
     <string name="menu_item_remind">Remind</string>
     <string name="menu_item_label">Label</string>
     <string name="menu_item_trash">Trash</string>

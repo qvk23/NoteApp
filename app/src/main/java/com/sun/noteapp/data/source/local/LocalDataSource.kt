@@ -1,6 +1,7 @@
 package com.sun.noteapp.data.source.local
 
 import com.sun.noteapp.data.model.Note
+import com.sun.noteapp.data.model.NoteOption
 import com.sun.noteapp.data.source.NoteDataSource
 import com.sun.noteapp.data.source.OnDataModifiedCallback
 
@@ -39,15 +40,13 @@ class LocalDataSource(private val database: NoteDatabase) : NoteDataSource.Local
     }
 
     override fun getNotesWithOption(
-        color: Int,
-        labels: List<String>,
-        sortType: String,
+        option: NoteOption,
         callback: OnDataModifiedCallback<List<Note>>
     ) {
-        LoadDataAsync(object : LocalDataHandler<Triple<Int, List<String>, String>, List<Note>> {
-            override fun execute(params: Triple<Int, List<String>, String>): List<Note> =
-                database.getNotesWithOption(params.first, params.second, params.third)
-        }, callback).execute(Triple(color, labels, sortType))
+        LoadDataAsync(object : LocalDataHandler<NoteOption, List<Note>> {
+            override fun execute(params: NoteOption) =
+                database.getNotesWithOption(params)
+        }, callback).execute(option)
     }
 
     override fun getAllLabels(callback: OnDataModifiedCallback<List<String>>) {
@@ -76,5 +75,19 @@ class LocalDataSource(private val database: NoteDatabase) : NoteDataSource.Local
             override fun execute(params: List<Int>): List<Boolean> =
                 database.restoreNotes(params)
         }, callback).execute(noteIds)
+    }
+
+    override fun getNoteById(id: Int, callback: OnDataModifiedCallback<Note>) {
+        LoadDataAsync(object : LocalDataHandler<Int, Note> {
+            override fun execute(params: Int) =
+                database.getNoteById(params)
+        }, callback).execute(id)
+    }
+
+    override fun getNoteCount(callback: OnDataModifiedCallback<Int>) {
+        LoadDataAsync(object : LocalDataHandler<String, Int> {
+            override fun execute(params: String) =
+                database.getNoteCount()
+        }, callback).execute("")
     }
 }
