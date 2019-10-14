@@ -44,13 +44,17 @@ object ConvertString {
 
     fun labelListToLabelStringData(strings: List<String>): String {
         var result = ""
-        strings.forEach {
-            result += "_$it"
+        val stringBuilder = StringBuilder()
+        if (strings.isNotEmpty()) {
+            strings.forEach {
+                stringBuilder.append("$UNDER_STROKE$it")
+            }
+            result = stringBuilder.substring(1).toString()
         }
-        return result.substring(1)
+        return result
     }
 
-    fun labelStringDataToLabelList(string: String): List<String> {
-        return string.split("$UNDER_STROKE")
-    }
+    fun labelStringDataToLabelList(string: String): List<String> =
+        string.split("$UNDER_STROKE")
+
 }

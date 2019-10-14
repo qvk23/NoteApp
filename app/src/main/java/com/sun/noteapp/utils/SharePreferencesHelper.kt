@@ -35,15 +35,23 @@ object SharePreferencesHelper {
         set(value) = preferences.edit {
             it.putInt(COLOR.first, value)
         }
+
+    fun reset() {
+        color = NoteDatabase.DEFAULT_COLOR
+        sortType = NoteDatabase.ORDERBY_CREATETIME
+    }
+
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     var sortType: String
         get() = preferences.getString(SORT.first, SORT.second)
         set(value) = preferences.edit {
             it.putString(SORT.first, value)
         }
+
     fun init(context: Context) {
         preferences = context.getSharedPreferences(NAME, MODE)
     }
+
     private inline fun SharedPreferences.edit(operation: (SharedPreferences.Editor) -> Unit) {
         val editor = edit()
         operation(editor)

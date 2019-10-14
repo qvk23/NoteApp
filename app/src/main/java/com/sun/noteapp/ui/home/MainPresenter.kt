@@ -55,7 +55,7 @@ class MainPresenter(
             }
 
             override fun onFailed(exception: Exception) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                view.noteCount(0)
             }
         })
     }

@@ -3,6 +3,7 @@ package com.sun.noteapp.ui.textnote
 import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.OnDataModifiedCallback
+import com.sun.noteapp.utils.getLabelsFromLabelDataString
 import java.lang.Exception
 
 class TextNotePresenter(
@@ -33,6 +34,18 @@ class TextNotePresenter(
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
+        })
+    }
+
+    override fun getAllLabels() {
+        repository.getAllLabels(object : OnDataModifiedCallback<List<String>>{
+            override fun onSuccess(data: List<String>) {
+                view.gotLabels(getLabelsFromLabelDataString(data))
+            }
+
+            override fun onFailed(exception: Exception) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
         })
     }
 
