@@ -204,7 +204,7 @@ class NoteDatabase(context: Context) :
         if (cursor != null && cursor.moveToFirst())
             note = Note(cursor)
         db.close()
-        return note!!
+        return note
     }
 
     fun getNoteCount(): Int {

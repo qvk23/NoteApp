@@ -321,14 +321,14 @@ class TextNoteActivity : AppCompatActivity(),
             lineContentTextNote.text.toString(),
             TYPE_TEXT_NOTE,
             noteColor,
-            ConvertString.labelListToLabelStringData(selectedLabels),
+            Note.NONE,
             getCurrentTime(),
             remindTime,
             notePassword,
             noteStatus
         )
         val duration: Long =
-            (date.timeInMillis - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
+            (remindTime.formatDate().time - System.currentTimeMillis()) / MILLISECOND_TO_SECONDS
         if (remindTime != Note.NONE && remindTime.formatDate().time > System.currentTimeMillis()) {
             if (noteId == 0) {
                 setReminder(

@@ -40,7 +40,7 @@ class NotificationHandler(
             notificationManager.createNotificationChannel(channel)
         }
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_note)
             .setVibrate(VIBRATE_ALARM)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
             .setLights(Color.RED, 500, 500)
@@ -57,8 +57,7 @@ class NotificationHandler(
         val taskStackBuilder = TaskStackBuilder.create(context)
         if (type == TYPE_TEXT_NOTE) {
             taskStackBuilder.addParentStack(TextNoteActivity::class.java)
-        }
-        else {
+        } else {
             intent = ToDoNoteActivity.getIntent(context, id)
             taskStackBuilder.addParentStack(ToDoNoteActivity::class.java)
         }

@@ -54,7 +54,7 @@ class ToDoNoteActivity : AppCompatActivity(),
     private var remindTime = Note.NONE
     private var noteId = 0
     private var noteStatus = NoteDatabase.UNHIDE
-    private var noteColor = 0
+    private var noteColor = 9
     private var notePassword = Note.NONE
     private val toDos = mutableListOf<ToDo>()
     private var itemTouchHelper: ItemTouchHelper? = null
@@ -296,6 +296,10 @@ class ToDoNoteActivity : AppCompatActivity(),
             date.set(Calendar.HOUR_OF_DAY, hourOfDay)
             date.set(Calendar.MINUTE, minutes)
             buttonAlarmToDoNote.text = simpleDateFormat.format(date.time)
+            if(date.time.time > System.currentTimeMillis())
+                buttonAlarmToDoNote.apply {
+                    paintFlags = 0
+                }
             remindTime = simpleDateFormat.format(date.time)
         }, date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE), true).show()
     }
