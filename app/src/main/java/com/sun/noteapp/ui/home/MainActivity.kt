@@ -2,7 +2,6 @@ package com.sun.noteapp.ui.home
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
@@ -12,7 +11,9 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,19 +28,18 @@ import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.local.LocalDataSource
 import com.sun.noteapp.data.source.local.NoteDatabase
 import com.sun.noteapp.ui.base.BaseDialog
-import com.sun.noteapp.ui.home.dialog.*
+import com.sun.noteapp.ui.home.dialog.ColorDialog
+import com.sun.noteapp.ui.home.dialog.CreateNoteDialog
+import com.sun.noteapp.ui.home.dialog.SortDialog
+import com.sun.noteapp.ui.home.dialog.ViewDialog
 import com.sun.noteapp.ui.search.SearchActivity
 import com.sun.noteapp.ui.textnote.TextNoteActivity
+import com.sun.noteapp.ui.todonote.SetLabelDialog
+import com.sun.noteapp.ui.todonote.ToDoNoteActivity
 import com.sun.noteapp.ui.trash.TrashActivity
 import com.sun.noteapp.utils.*
-import com.sun.noteapp.ui.todonote.ToDoNoteActivity
-import com.sun.noteapp.utils.TEXT_NOTE
-import com.sun.noteapp.utils.getScreenWidth
-import com.sun.noteapp.utils.getListColor
-import com.sun.noteapp.utils.showToast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_home_screen.*
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity(),
     MainContract.View,
@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity(),
         NoteDatabase.ORDERBY_CREATETIME,
         false
     )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -101,6 +102,8 @@ class MainActivity : AppCompatActivity(),
         drawerNavigate.addDrawerListener(toggle)
         toggle.syncState()
         fabAdd.setOnClickListener(this)
+        buttonClearOption.setOnClickListener(this)
+        recyclerHome.itemAnimator = null
     }
 
     override fun onClick(item: View?) {
@@ -117,12 +120,17 @@ class MainActivity : AppCompatActivity(),
                     }
                 }).show()
             }
+            R.id.buttonClearOption -> {
+                clearOption()
+            }
         }
     }
 
     private fun initData() {
         SharePreferencesHelper.init(this)
         setViewType(SharePreferencesHelper.type)
+        showOptionDetail(false)
+        setOptionDetail()
     }
 
     private fun openNoteScreen(noteType: Int, id: Int) {
@@ -130,6 +138,53 @@ class MainActivity : AppCompatActivity(),
             startActivity(TextNoteActivity.getIntent(this@MainActivity, id))
         } else {
             startActivity(ToDoNoteActivity.getIntent(this@MainActivity, id))
+        }
+    }
+
+    private fun clearOption() {
+        SharePreferencesHelper.let {
+            it.reset()
+            presenter.getAllNotesWithOption(option)
+        }
+        showOptionDetail(false)
+    }
+
+    private fun showOptionDetail(isShow: Boolean) {
+        if (isShow) {
+            textOption.visible()
+            buttonClearOption.visible()
+        } else {
+            textOption.gone()
+            buttonClearOption.gone()
+        }
+    }
+
+    private fun setOptionDetail() {
+        SharePreferencesHelper.let {
+            if (it.color != NoteDatabase.DEFAULT_COLOR || it.sortType != NoteDatabase.ORDERBY_CREATETIME) {
+                textOption.setBackgroundColor(
+                    ContextCompat.getColor(this, ColorPicker.getMediumColor(it.color))
+                )
+                textOption.text = getString(R.string.sort)
+                when (it.sortType) {
+                    NoteDatabase.ORDERBY_CREATETIME -> {
+                        textOption.append(getString(R.string.view_sort_by_created_time))
+                    }
+                    NoteDatabase.ORDERBY_REMINDTIME -> {
+                        textOption.append(getString(R.string.view_sort_by_reminder_time))
+                    }
+                    NoteDatabase.ORDERBY_ALPHABETA -> {
+                        textOption.append(getString(R.string.view_sort_by_alphabetically))
+                    }
+                    NoteDatabase.ORDERBY_COLOR -> {
+                        textOption.append(getString(R.string.view_sort_by_color))
+                    }
+                    NoteDatabase.ORDERBY_MODIFYTIME -> {
+                        textOption.append(getString(R.string.view_sort_by_modified_time))
+                    }
+                }
+                showOptionDetail(true)
+            }
         }
     }
 
@@ -162,13 +217,15 @@ class MainActivity : AppCompatActivity(),
             true
         }
         R.id.navAllNote -> {
-            presenter.getAllNote()
+            SharePreferencesHelper.isRemind = false
+            option.isOnlyRemind = false
+            presenter.getAllNotesWithOption(option)
             drawerNavigate.closeDrawer(GravityCompat.START)
             true
         }
         R.id.navRemindNote -> {
-            SharePreferencesHelper.isRemind = !SharePreferencesHelper.isRemind
-            option.isOnlyRemind = SharePreferencesHelper.isRemind
+            SharePreferencesHelper.isRemind = true
+            option.isOnlyRemind = true
             presenter.getAllNotesWithOption(option)
             drawerNavigate.closeDrawer(GravityCompat.START)
             true
@@ -211,6 +268,7 @@ class MainActivity : AppCompatActivity(),
         }
 
     }
+
     private fun getInput() = EditText(this).apply {
         layoutParams = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
@@ -221,6 +279,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun gettedLabels(labels: List<String>) {
+        allLabels.clear()
         allLabels.addAll(labels)
     }
 
@@ -285,6 +344,7 @@ class MainActivity : AppCompatActivity(),
                 SharePreferencesHelper.color = params
                 option.color = params
                 presenter.getAllNotesWithOption(option)
+                setOptionDetail()
             }
         }).show()
     }
@@ -299,7 +359,26 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showLabelDialog() {
-        LabelDialog(this, R.layout.dialog_label).show()
+        SetLabelDialog(
+            this,
+            allLabels,
+            selectedLabels,
+            true,
+            getString(R.string.button_ok),
+            object : SetLabelDialog.HandleAddLabelDialogEvent {
+                override fun getSelectedLabels(selectedLabels: List<String>) {
+                    this@MainActivity.selectedLabels.apply {
+                        clear()
+                        addAll(selectedLabels)
+                        presenter.getAllNotesWithOption(option)
+                    }
+                }
+
+                override fun addLabel() {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+            }
+        ).show()
     }
 
     private fun showSortDialog() {
@@ -308,8 +387,14 @@ class MainActivity : AppCompatActivity(),
                 SharePreferencesHelper.sortType = params
                 option.sortType = params
                 presenter.getAllNotesWithOption(option)
+                setOptionDetail()
             }
         }).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SharePreferencesHelper.isRemind = false
     }
 
     companion object {

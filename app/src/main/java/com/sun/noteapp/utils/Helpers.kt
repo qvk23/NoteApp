@@ -78,9 +78,6 @@ fun getLabelsFromLabelDataString(labelDataStrings: List<String>): List<String> {
         val labels = it.split("$UNDER_STROKE")
         results.addAll(labels)
     }
-    results.apply {
-        sort()
-        distinct()
-    }
-    return results
+    results.sort()
+    return results.distinct()
 }

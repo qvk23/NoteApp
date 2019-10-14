@@ -12,9 +12,12 @@ import com.sun.noteapp.data.model.Note
 import com.sun.noteapp.data.repository.NoteLocalRepository
 import com.sun.noteapp.data.source.local.LocalDataSource
 import com.sun.noteapp.data.source.local.NoteDatabase
+import com.sun.noteapp.ui.textnote.TextNoteActivity
+import com.sun.noteapp.ui.todonote.ToDoNoteActivity
+import com.sun.noteapp.utils.TEXT_NOTE
 import com.sun.noteapp.utils.getScreenWidth
 import com.sun.noteapp.utils.showToast
-import kotlinx.android.synthetic.main.activity_search.recyclerSearch
+import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity(),
     SearchContract.View,
@@ -46,10 +49,22 @@ class SearchActivity : AppCompatActivity(),
             layoutManager = linearLayoutManager
             itemAnimator = null
         }
+        toolbarSearch.setTitle(getString(R.string.option_menu_item_search))
+        setSupportActionBar(toolbarSearch)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
     }
 
     private fun initData() {
         presenter.getAllNotes()
+    }
+
+    private fun openNoteScreen(noteType: Int, note: Note) {
+        if (noteType == TEXT_NOTE) {
+            startActivity(TextNoteActivity.getIntent(this, note.id))
+        } else {
+            startActivity(ToDoNoteActivity.getIntent(this, note.id))
+        }
     }
 
     override fun showNotes(notes: List<Note>) {
@@ -57,7 +72,7 @@ class SearchActivity : AppCompatActivity(),
     }
 
     override fun showNoteDetail(position: Int, note: Note) {
-        showToast(note.toString())
+        openNoteScreen(position, note)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

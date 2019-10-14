@@ -47,8 +47,19 @@ class SearchAdapter(
         private val listener: OnSearchItemClick
     ) : BaseViewHolder<Note>(itemView) {
 
+        private var note: Note? = null
+
+        init {
+            itemView.setOnClickListener{
+                 note?.let {
+                     listener.showNoteDetail(adapterPosition, it)
+                 }
+            }
+        }
+
         fun onBindData(itemData: Note, querySearch: String) {
             showDataOnView(itemData, querySearch)
+            note = itemData
         }
 
         private fun showDataOnView(itemData: Note, querySearch: String) {
@@ -154,10 +165,6 @@ class SearchAdapter(
                 )
             }
             textView.text = spannableString
-        }
-
-        override fun onHandleItemClick(mainItem: Note) {
-            listener.showNoteDetail(adapterPosition, mainItem)
         }
     }
 

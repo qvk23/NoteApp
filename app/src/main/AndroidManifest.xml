@@ -11,17 +11,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".ui.todonote.ToDoNoteActivity"
+        <activity
+            android:name=".ui.todonote.ToDoNoteActivity"
             android:parentActivityName=".ui.home.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.trash.TrashActivity"
             android:parentActivityName=".ui.home.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.search.SearchActivity"
-            android:parentActivityName=".ui.home.MainActivity" />
+            android:parentActivityName=".ui.home.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.textnote.TextNoteActivity"
             android:parentActivityName=".ui.home.MainActivity"
